@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
+import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { site } from "@/lib/site";
 
@@ -15,17 +15,24 @@ export const metadata: Metadata = {
 };
 
 // Applies the saved theme before paint so there is no flash.
-const themeScript = `try{var t=localStorage.getItem('yc-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+const themeScript = `try{var t=localStorage.getItem('nvx-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} ${plexMono.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${archivo.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-svh flex flex-col">
-        <Header />
-        <main id="main" className="flex-1">{children}</main>
+      <body>
+        <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
+          <symbol id="mark" viewBox="0 0 24 24">
+            <path d="M4 7l8-4 8 4-8 4z" fill="var(--cobalt)" />
+            <path d="M4 12l8 4 8-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+            <path d="M4 16.5l8 4 8-4" fill="none" stroke="var(--amber)" strokeWidth="1.8" />
+          </symbol>
+        </svg>
+        <Nav />
+        <main id="main">{children}</main>
         <Footer />
       </body>
     </html>

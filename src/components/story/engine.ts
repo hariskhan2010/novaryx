@@ -39,29 +39,28 @@ function drawSite(x: Ctx, w: number, h: number) {
   rr(x, "#121a3a", 0, 0, w, 64, 0);
   rr(x, "#7590ff", 28, 20, 24, 24, 6);
   txt(x, "NOVARYX", 62, 41, 22, "#ffffff", 800);
-  ["Projects", "Custom", "About"].forEach((l, i) => txt(x, l, 610 + i * 100, 40, 17, "#8e96b6", 600));
-  rr(x, "#7590ff", 900, 16, 100, 32, 16); txt(x, "Sign in", 921, 38, 15, "#0a0d18", 700);
-  txt(x, "Projects we built.", 48, 150, 52, "#ffffff", 800);
-  txt(x, "Yours to use monthly.", 48, 210, 52, "#7590ff", 800);
+  ["Services", "About", "Contact"].forEach((l, i) => txt(x, l, 600 + i * 100, 40, 17, "#8e96b6", 600));
+  rr(x, "#7590ff", 900, 16, 100, 32, 16); txt(x, "Start", 928, 38, 15, "#0a0d18", 700);
+  txt(x, "Websites, apps", 48, 150, 52, "#ffffff", 800);
+  txt(x, "and AI that work.", 48, 210, 52, "#7590ff", 800);
   rr(x, "#2a3260", 48, 238, 420, 10, 5); rr(x, "#2a3260", 48, 258, 340, 10, 5);
-  rr(x, "#7590ff", 48, 290, 180, 46, 23); txt(x, "Browse projects", 66, 320, 17, "#0a0d18", 700);
+  rr(x, "#7590ff", 48, 290, 180, 46, 23); txt(x, "Start a project", 70, 320, 17, "#0a0d18", 700);
   x.strokeStyle = "#3a4478"; x.lineWidth = 2; x.beginPath(); x.roundRect(242, 290, 150, 46, 23); x.stroke();
-  txt(x, "Custom", 286, 320, 17, "#e8ebf6", 600);
+  txt(x, "Services", 280, 320, 17, "#e8ebf6", 600);
   const g = x.createLinearGradient(600, 96, 976, 340);
   g.addColorStop(0, "#2c48ff"); g.addColorStop(1, "#ffb15c");
   rr(x, g, 600, 96, 376, 250, 22);
   x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = 5; x.beginPath();
   for (let i = 0; i <= 10; i++) { const px = 630 + i * 31, py = 300 - i * 14 - 26 * Math.sin(i * 0.9); if (i) x.lineTo(px, py); else x.moveTo(px, py); }
   x.stroke();
-  txt(x, "+38%", 630, 140, 30, "#ffffff", 800);
-  const cards: [string, string, string][] = [["Online Store", "$19/mo", "#4fd1a1"], ["Booking App", "$24/mo", "#7590ff"], ["AI Chatbot", "$29/mo", "#ffb15c"]];
-  cards.forEach(([t, p, c], i) => {
+  const cards: [string, string][] = [["Website", "#4fd1a1"], ["Mobile app", "#7590ff"], ["AI tool", "#ffb15c"]];
+  cards.forEach(([t, c], i) => {
     const cx = 48 + i * 318;
     rr(x, "#161f45", cx, 386, 296, 220, 18);
     rr(x, c, cx + 14, 400, 268, 110, 12);
     rr(x, "rgba(10,13,24,.35)", cx + 30, 420, 120, 14, 7);
     txt(x, t, cx + 18, 548, 22, "#ffffff", 700);
-    txt(x, p, cx + 18, 582, 18, "#ffb15c", 700, true);
+    rr(x, "#2a3260", cx + 18, 566, 150, 12, 6);
   });
 }
 function drawApp(x: Ctx, w: number, h: number) {
@@ -69,9 +68,9 @@ function drawApp(x: Ctx, w: number, h: number) {
   txt(x, "9:41", 34, 46, 20, "#ffffff", 700);
   rr(x, "#05060a", w / 2 - 50, 22, 100, 28, 14);
   rr(x, "#ffffff", w - 70, 32, 36, 14, 4);
-  txt(x, "My projects", 30, 120, 34, "#ffffff", 800);
-  txt(x, "2 active subscriptions", 30, 152, 17, "#8e96b6", 500);
-  const rows: [string, string, string][] = [["Online Store", "Active", "#4fd1a1"], ["Booking App", "Active", "#4fd1a1"], ["AI Chatbot", "Pending", "#ffb15c"]];
+  txt(x, "Your project", 30, 120, 34, "#ffffff", 800);
+  rr(x, "#2a3260", 30, 140, 200, 12, 6);
+  const rows: [string, string, string][] = [["Website", "Live", "#4fd1a1"], ["Mobile app", "Review", "#ffb15c"], ["SEO report", "Ready", "#4fd1a1"]];
   rows.forEach(([t, st, c], i) => {
     const y = 186 + i * 118;
     rr(x, "#161f45", 22, y, w - 44, 100, 20);
@@ -81,7 +80,7 @@ function drawApp(x: Ctx, w: number, h: number) {
     txt(x, st, 124, y + 77, 14, c, 700);
   });
   rr(x, "#7590ff", 22, h - 170, w - 44, 64, 32);
-  txt(x, "Order custom project", 74, h - 129, 21, "#0a0d18", 800);
+  txt(x, "Message the team", 98, h - 129, 21, "#0a0d18", 800);
   [0, 1, 2, 3].forEach((i) => rr(x, i === 0 ? "#7590ff" : "#2a3260", 50 + i * ((w - 140) / 3), h - 64, 40, 8, 4));
 }
 function drawKeys(x: Ctx, w: number, h: number) {
@@ -114,7 +113,7 @@ function drawBackend(x: Ctx, w: number, h: number) {
     ["  const projects = await db", "#e8ebf6"],
     ["    .from(\"projects\")", "#4fd1a1"],
     ["    .select(\"*\")", "#4fd1a1"],
-    ["    .eq(\"active\", true);", "#ffb15c"],
+    ["    .eq(\"live\", true);", "#ffb15c"],
     ["  return Response.json(projects);", "#7590ff"],
     ["}", "#c792ea"],
   ];
@@ -134,7 +133,7 @@ function drawAI(x: Ctx, w: number, h: number) {
   txt(x, "✦ AI Assistant", 48, 70, 30, "#ffffff", 800);
   rr(x, "#7590ff", w - 520, 110, 470, 70, 24); txt(x, "Build me a booking app", w - 494, 155, 26, "#0a0d18", 700);
   rr(x, "#1d2658", 48, 210, 600, 120, 24);
-  txt(x, "Sure! Your app is ready:", 76, 256, 26, "#ffffff", 600);
+  txt(x, "Sure. Here is the plan:", 76, 256, 26, "#ffffff", 600);
   txt(x, "bookings, payments, reminders.", 76, 300, 26, "#c9d2ff", 500);
   rr(x, "#1d2658", 48, 360, 220, 60, 22);
   [0, 1, 2].forEach((i) => { x.beginPath(); x.arc(110 + i * 46, 390, 10, 0, 7); x.fillStyle = "#ffb15c"; x.fill(); });
@@ -150,6 +149,8 @@ export function initStory(root: HTMLElement): () => void {
   const canvas = root.querySelector<HTMLCanvasElement>(".story-gl")!;
   const scenes = [...root.querySelectorAll<HTMLElement>(".story-front [data-r]")].map((el) => ({ el, r: el.dataset.r!.split(",").map(Number) }));
   const back = root.querySelector<HTMLElement>(".story-back")!;
+  const wordmark = root.querySelector<HTMLElement>(".wordmark")!;
+  const hint = root.querySelector<HTMLElement>("[data-hint]")!;
   const words = [...back.querySelectorAll<HTMLElement>(".story-word")];
   const lbls = [...root.querySelectorAll<HTMLElement>(".lbl")];
   const rls = [...root.querySelectorAll<HTMLElement>(".rl")];
@@ -262,7 +263,7 @@ export function initStory(root: HTMLElement): () => void {
     // Phone standing to the front-right
     const PW = 0.78, PH = 1.56, PT = 0.08;
     const phone = new THREE.Group();
-    phone.position.set(2.25, -0.4, 0.75); phone.rotation.y = -0.38;
+    phone.position.set(2.35, -0.4, 0.75); phone.rotation.y = -0.38;
     group.add(phone);
     const phoneBody = new THREE.Mesh(new RoundedBoxGeometry(PW, PH, PT, 4, 0.038), alu);
     phone.add(phoneBody);
@@ -297,7 +298,7 @@ export function initStory(root: HTMLElement): () => void {
     scene.add(pts);
 
     onTheme = () => {
-      accent.set(css("--accent")); hot.set(css("--hot"));
+      accent.set(css("--cobalt")); hot.set(css("--amber"));
       layerEdges.forEach((w) => (w.material as THREE.LineBasicMaterial).color.copy(accent));
       (ring.material as THREE.MeshBasicMaterial).color.copy(accent);
       (pts.material as THREE.PointsMaterial).color.copy(accent);
@@ -315,7 +316,7 @@ export function initStory(root: HTMLElement): () => void {
 
     // [s, x, y, scale] keyframes, desktop and phone
     const KD = [[0, 2.2, 0, 0.92], [2.0, 2.2, 0, 0.92], [2.4, 1.5, 0, 0.82], [3.4, 1.5, 0, 0.82], [3.8, 0, 0, 0.5], [4.6, 0, 0, 0.5], [5.0, 2.2, 0, 0.8], [6, 2.2, 0, 0.8]];
-    const KP = [[0, 0, -1.25, 0.5], [2.0, 0, -1.25, 0.5], [2.4, -0.45, -0.5, 0.46], [3.4, -0.45, -0.5, 0.46], [3.8, 0, 0, 0.36], [4.6, 0, 0, 0.36], [5.0, 0, -1.3, 0.44], [6, 0, -1.3, 0.44]];
+    const KP = [[0, 0, -1.25, 0.5], [2.0, 0, -1.25, 0.5], [2.4, -0.45, -0.5, 0.46], [3.4, -0.45, -0.5, 0.46], [3.8, 0, -0.2, 0.36], [4.6, 0, -0.2, 0.36], [5.0, 0, -1.3, 0.44], [6, 0, -1.3, 0.44]];
     const kf = (K: number[][], s: number) => {
       for (let i = 0; i < K.length - 1; i++) {
         const a = K[i], b = K[i + 1];
@@ -375,6 +376,9 @@ export function initStory(root: HTMLElement): () => void {
       back.style.opacity = wo.toFixed(3);
       words.forEach((w, i) => (w.style.translate = `${((i % 2 ? -1 : 1) * (seg(s, 3.4, 4.9) - 0.5) * -28 - (i % 2 ? 18 : 4)).toFixed(2)}vw 0`));
 
+      wordmark.style.opacity = (eOut(seg(s, 4.9, 5.4)) * 0.9).toFixed(3);
+      wordmark.style.translate = ph ? "0 22vh" : "0 0";
+      hint.style.setProperty("--o", (1 - seg(s, 0, 0.4)).toFixed(3));
       const ro = eOut(seg(s, 4.85, 5.25));
       ringG.visible = ro > 0.01; ringG.position.set(x, y, 0); ringG.scale.setScalar(sc * (0.85 + 0.15 * ro));
       ringG.rotation.set(1.18, 0, time * 0.1);
@@ -438,13 +442,13 @@ export function initStory(root: HTMLElement): () => void {
   const themeMq = matchMedia("(prefers-color-scheme: light)");
   const themeHandler = () => onTheme();
   themeMq.addEventListener("change", themeHandler);
-  addEventListener("yc-theme", themeHandler);
+  addEventListener("nvx-theme", themeHandler);
   addEventListener("resize", onResize);
 
   return () => {
     cancelAnimationFrame(raf);
     themeMq.removeEventListener("change", themeHandler);
-    removeEventListener("yc-theme", themeHandler);
+    removeEventListener("nvx-theme", themeHandler);
     removeEventListener("resize", onResize);
     disposers.forEach((d) => d());
   };

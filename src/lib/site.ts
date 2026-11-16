@@ -1,9 +1,9 @@
 // Brand settings.
 export const site = {
   name: "NOVARYX",
-  tagline: "Ready-made projects on subscription",
+  tagline: "Websites, apps, AI and growth",
   description:
-    "Subscribe to ready-made web apps, websites, mobile apps and AI tools, hosted for you, set up for you, or as source code. Or order a custom project.",
+    "NOVARYX is a three-partner studio from Peshawar, Pakistan. We build websites, apps and automations, then help them grow with SEO, marketing, design and video.",
   email: "harismalik2010afridi@gmail.com",
   year: 2026,
   location: "Peshawar, Pakistan",
