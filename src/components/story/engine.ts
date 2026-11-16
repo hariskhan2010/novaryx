@@ -39,21 +39,21 @@ function drawSite(x: Ctx, w: number, h: number) {
   rr(x, "#121a3a", 0, 0, w, 64, 0);
   rr(x, "#7590ff", 28, 20, 24, 24, 6);
   txt(x, "NOVARYX", 62, 41, 22, "#ffffff", 800);
-  ["Services", "About", "Contact"].forEach((l, i) => txt(x, l, 600 + i * 100, 40, 17, "#8e96b6", 600));
+  ["Projects", "Services", "About"].forEach((l, i) => txt(x, l, 600 + i * 100, 40, 17, "#8e96b6", 600));
   rr(x, "#7590ff", 900, 16, 100, 32, 16); txt(x, "Start", 928, 38, 15, "#0a0d18", 700);
-  txt(x, "Websites, apps", 48, 150, 52, "#ffffff", 800);
-  txt(x, "and AI that work.", 48, 210, 52, "#7590ff", 800);
+  txt(x, "We build it.", 48, 150, 54, "#ffffff", 800);
+  txt(x, "You use it.", 48, 212, 54, "#7590ff", 800);
   rr(x, "#2a3260", 48, 238, 420, 10, 5); rr(x, "#2a3260", 48, 258, 340, 10, 5);
-  rr(x, "#7590ff", 48, 290, 180, 46, 23); txt(x, "Start a project", 70, 320, 17, "#0a0d18", 700);
+  rr(x, "#7590ff", 48, 290, 180, 46, 23); txt(x, "See projects", 74, 320, 17, "#0a0d18", 700);
   x.strokeStyle = "#3a4478"; x.lineWidth = 2; x.beginPath(); x.roundRect(242, 290, 150, 46, 23); x.stroke();
-  txt(x, "Services", 280, 320, 17, "#e8ebf6", 600);
+  txt(x, "Custom", 286, 320, 17, "#e8ebf6", 600);
   const g = x.createLinearGradient(600, 96, 976, 340);
   g.addColorStop(0, "#2c48ff"); g.addColorStop(1, "#ffb15c");
   rr(x, g, 600, 96, 376, 250, 22);
   x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = 5; x.beginPath();
   for (let i = 0; i <= 10; i++) { const px = 630 + i * 31, py = 300 - i * 14 - 26 * Math.sin(i * 0.9); if (i) x.lineTo(px, py); else x.moveTo(px, py); }
   x.stroke();
-  const cards: [string, string][] = [["Website", "#4fd1a1"], ["Mobile app", "#7590ff"], ["AI tool", "#ffb15c"]];
+  const cards: [string, string][] = [["Web app", "#4fd1a1"], ["Website", "#7590ff"], ["AI tool", "#ffb15c"]];
   cards.forEach(([t, c], i) => {
     const cx = 48 + i * 318;
     rr(x, "#161f45", cx, 386, 296, 220, 18);
@@ -68,9 +68,9 @@ function drawApp(x: Ctx, w: number, h: number) {
   txt(x, "9:41", 34, 46, 20, "#ffffff", 700);
   rr(x, "#05060a", w / 2 - 50, 22, 100, 28, 14);
   rr(x, "#ffffff", w - 70, 32, 36, 14, 4);
-  txt(x, "Your project", 30, 120, 34, "#ffffff", 800);
+  txt(x, "My projects", 30, 120, 34, "#ffffff", 800);
   rr(x, "#2a3260", 30, 140, 200, 12, 6);
-  const rows: [string, string, string][] = [["Website", "Live", "#4fd1a1"], ["Mobile app", "Review", "#ffb15c"], ["SEO report", "Ready", "#4fd1a1"]];
+  const rows: [string, string, string][] = [["Web app", "Active", "#4fd1a1"], ["Website", "Active", "#4fd1a1"], ["AI tool", "Pending", "#ffb15c"]];
   rows.forEach(([t, st, c], i) => {
     const y = 186 + i * 118;
     rr(x, "#161f45", 22, y, w - 44, 100, 20);
@@ -80,7 +80,7 @@ function drawApp(x: Ctx, w: number, h: number) {
     txt(x, st, 124, y + 77, 14, c, 700);
   });
   rr(x, "#7590ff", 22, h - 170, w - 44, 64, 32);
-  txt(x, "Message the team", 98, h - 129, 21, "#0a0d18", 800);
+  txt(x, "Order custom project", 74, h - 129, 21, "#0a0d18", 800);
   [0, 1, 2, 3].forEach((i) => rr(x, i === 0 ? "#7590ff" : "#2a3260", 50 + i * ((w - 140) / 3), h - 64, 40, 8, 4));
 }
 function drawKeys(x: Ctx, w: number, h: number) {
@@ -113,7 +113,7 @@ function drawBackend(x: Ctx, w: number, h: number) {
     ["  const projects = await db", "#e8ebf6"],
     ["    .from(\"projects\")", "#4fd1a1"],
     ["    .select(\"*\")", "#4fd1a1"],
-    ["    .eq(\"live\", true);", "#ffb15c"],
+    ["    .eq(\"published\", true);", "#ffb15c"],
     ["  return Response.json(projects);", "#7590ff"],
     ["}", "#c792ea"],
   ];

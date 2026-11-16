@@ -2,18 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Intro } from "@/components/Intro";
 import { StoryHero } from "@/components/story/StoryHero";
-import { SERVICE_GROUPS, TEAM, WHY_US } from "@/lib/content";
+import { TEAM, WHY_US } from "@/lib/content";
 
-const WAYS: Record<string, string> = {
-  build: "Websites, web apps, mobile apps and automations, built in-house.",
-  grow: "SEO, marketing, social media and content, so people find what we build.",
-  create: "Logos, graphics and video that make your brand look right.",
-};
-
-const STEPS = [
-  { t: "Tell us what you need", d: "Send a message with your idea, or what isn't working today." },
-  { t: "Get a plan and a price", d: "We reply by email with how we'd build it, the price and a delivery date." },
-  { t: "We build, you launch", d: "We deliver on the date we gave you, then help it grow if you want." },
+const WAYS = [
+  { k: "Subscribe", t: "Ready-made projects", d: "Apps, websites and tools we've already built, on a monthly subscription.", href: "/projects" },
+  { k: "Order", t: "Custom projects", d: "Tell us what you want and we build it to order, whatever it is.", href: "/contact" },
+  { k: "Grow", t: "Services", d: "SEO, marketing, design and video, so what we build also gets seen.", href: "/services" },
 ];
 
 export default function Home() {
@@ -32,30 +26,16 @@ export default function Home() {
 
       <section className="section wrap" style={{ paddingTop: 0 }} aria-labelledby="ways-h">
         <p className="mono eyebrow">What we do</p>
-        <h2 className="h2" id="ways-h">Build it. Grow it. Make it look right.</h2>
+        <h2 className="h2" id="ways-h">Three ways to work with us.</h2>
         <div className="ways">
-          {SERVICE_GROUPS.map((g) => (
-            <Link key={g.id} href="/services">
-              <span className="mono" style={{ color: "var(--amber)" }}>{g.label}</span>
-              <b>{g.items.map((i) => i.t).slice(0, 2).join(" & ")}{g.items.length > 2 ? " +" : ""}</b>
-              <span className="muted">{WAYS[g.id]}</span>
+          {WAYS.map((w) => (
+            <Link key={w.k} href={w.href}>
+              <span className="mono" style={{ color: "var(--amber)" }}>{w.k}</span>
+              <b>{w.t}</b>
+              <span className="muted">{w.d}</span>
             </Link>
           ))}
         </div>
-      </section>
-
-      <section id="how" className="section wrap" style={{ paddingTop: 0 }} aria-labelledby="how-h">
-        <p className="mono eyebrow">How it works</p>
-        <h2 className="h2" id="how-h">Three steps from idea to launch.</h2>
-        <ol className="steps reset">
-          {STEPS.map((s, i) => (
-            <li key={s.t}>
-              <span className="mono" style={{ color: "var(--amber)" }}>Step {i + 1}</span>
-              <h3>{s.t}</h3>
-              <p className="muted">{s.d}</p>
-            </li>
-          ))}
-        </ol>
       </section>
 
       <section className="section wrap" style={{ paddingTop: 0 }} aria-labelledby="team-teaser">
@@ -74,8 +54,8 @@ export default function Home() {
 
       <section className="wrap" style={{ paddingBottom: 40 }} aria-labelledby="band-h">
         <div className="band">
-          <p className="mono">Have a project in mind?</p>
-          <h2 id="band-h">Tell us what you need. We&apos;ll take it from there.</h2>
+          <p className="mono">Custom projects</p>
+          <h2 id="band-h">Don&apos;t see what you need? We&apos;ll build it.</h2>
           <Link className="btn" href="/contact">Start a project</Link>
         </div>
       </section>

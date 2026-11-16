@@ -76,4 +76,4 @@ export const SERVICE_GROUPS = [
   },
 ];
 
-export const NEEDS = ["Website or web app", "Mobile app", "Automation or AI", "SEO or marketing", "Design or video", "Something else"];
+export const NEEDS = ["A ready-made project", "A custom project", "SEO or marketing", "Design or video", "Something else"];

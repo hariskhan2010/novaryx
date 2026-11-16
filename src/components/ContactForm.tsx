@@ -56,7 +56,7 @@ export function ContactForm() {
         {f.details && <span className="field-err" id="e-details">{f.details}</span>}
       </div>
       <p className="err" aria-live="polite">{state.error}</p>
-      <button className="btn btn-pri" type="submit" disabled={pending} style={{ justifySelf: "start" }}>{pending ? "Sending…" : "Send message"}</button>
+      <button className="btn btn-pri" type="submit" disabled={pending} style={{ justifySelf: "start" }}>{pending ? "Sending…" : "Send request"}</button>
     </form>
   );
 }
