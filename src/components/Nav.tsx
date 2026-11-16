@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 export const NAV = [
+  { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -88,7 +89,7 @@ export function Nav() {
         </button>
         {open && (
           <div ref={drawer} className="drawer" id="drawer" onClick={(e) => { if ((e.target as HTMLElement).closest("a")) setOpen(false); }}>
-            {[{ href: "/", label: "Home" }, ...NAV].map((n) => <Link key={n.href} href={n.href} aria-current={cur(n.href)}>{n.label}</Link>)}
+            {NAV.map((n) => <Link key={n.href} href={n.href} aria-current={cur(n.href)}>{n.label}</Link>)}
           </div>
         )}
       </div>
