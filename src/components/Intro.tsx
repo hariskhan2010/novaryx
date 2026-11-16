@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-/** Logo-window intro: the page opens through the NOVARYX mark. Once per visit, skipped for reduced motion.
+/** Logo-window intro: the page opens through the NOVARYX mark. Plays when the home page loads, skipped for reduced motion.
     Server-rendered hidden, so the page is never covered if scripts are slow or off. */
 export function Intro() {
   const box = useRef<HTMLDivElement>(null);
@@ -9,9 +9,7 @@ export function Intro() {
   const line = useRef<SVGGElement>(null);
 
   useEffect(() => {
-    let seen = false;
-    try { seen = sessionStorage.getItem("nvx-intro") === "1"; sessionStorage.setItem("nvx-intro", "1"); } catch {}
-    if (seen || matchMedia("(prefers-reduced-motion: reduce)").matches || !box.current) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !box.current) return;
     const el = box.current;
     el.hidden = false;
     const t0 = performance.now();

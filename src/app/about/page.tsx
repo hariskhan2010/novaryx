@@ -40,7 +40,7 @@ export default function AboutPage() {
         <h2 className="h2" id="partners-h">Three partners. One promise.</h2>
         <div style={{ marginTop: 44 }}>
           {TEAM.map((m) => (
-            <article key={m.id} className="partner">
+            <article key={m.id} className="partner reveal">
               <Tilt>
                 <Image src={m.photo} alt={`${m.name}, ${m.role} at ${site.name}`} placeholder="blur" sizes="(min-width: 760px) 340px, 100vw" />
               </Tilt>

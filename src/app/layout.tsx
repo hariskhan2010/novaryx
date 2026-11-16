@@ -3,6 +3,7 @@ import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { RouteFX } from "@/components/RouteFX";
 import { site } from "@/lib/site";
 
 const archivo = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-archivo" });
@@ -32,8 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </symbol>
         </svg>
         <Nav />
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>{children}</main>
         <Footer />
+        <RouteFX />
       </body>
     </html>
   );
