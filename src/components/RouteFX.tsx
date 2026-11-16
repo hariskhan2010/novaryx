@@ -29,6 +29,7 @@ export function RouteFX() {
   const path = usePathname();
   const box = useRef<HTMLDivElement>(null);
   const first = useRef(true);
+  const shownAt = useRef(0);
 
   // Show the loader as soon as an internal link to another page is clicked.
   useEffect(() => {
@@ -38,7 +39,7 @@ export function RouteFX() {
       const href = a?.getAttribute("href");
       if (!a || !href || !href.startsWith("/") || href.startsWith("//") || a.target) return;
       if (href.split("#")[0] === location.pathname) return;
-      if (box.current) { box.current.hidden = false; box.current.classList.add("on"); }
+      if (box.current) { box.current.hidden = false; box.current.classList.add("on"); shownAt.current = performance.now(); }
     };
     // Capture phase: runs before Next.js Link takes over the click.
     document.addEventListener("click", onClick, true);
@@ -51,10 +52,12 @@ export function RouteFX() {
     const h = document.querySelector<HTMLElement>("main h1");
     document.querySelector<HTMLElement>("main")?.focus({ preventScroll: true });
     if (reduced()) { if (el) { el.classList.remove("on"); el.hidden = true; } return; }
+    // Keep the loader on screen for at least 700 ms from the click, even when the page is already prefetched.
+    const wait = Math.max(250, 700 - (performance.now() - shownAt.current));
     const t = setTimeout(() => {
-      if (el) { el.classList.remove("on"); setTimeout(() => { if (!el.classList.contains("on")) el.hidden = true; }, 220); }
+      if (el) { el.classList.remove("on"); setTimeout(() => { if (!el.classList.contains("on")) el.hidden = true; }, 300); }
       if (h) scramble(h);
-    }, 380);
+    }, wait);
     return () => clearTimeout(t);
   }, [path]);
 

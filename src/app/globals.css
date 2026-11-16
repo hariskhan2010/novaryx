@@ -62,8 +62,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .intro svg{width:100%;height:100%;display:block}
 
 /* page-change loader: spinning ring around the mark */
-.loader{position:fixed;inset:0;z-index:8;display:grid;place-items:center;background:var(--ink);opacity:0;transition:opacity .2s;pointer-events:none}
-.loader.on{opacity:1;pointer-events:auto}
+.loader{position:fixed;inset:0;z-index:8;display:grid;place-items:center;background:var(--ink);opacity:0;transition:opacity .3s;pointer-events:none}
+.loader.on{opacity:1;pointer-events:auto;transition:none}
 .spin{position:relative;width:80px;height:80px;display:grid;place-items:center}
 .ring{position:absolute;inset:0;width:80px;height:80px;animation:ring .8s linear infinite}
 .ring circle{fill:none;stroke:var(--cobalt);stroke-width:3;stroke-linecap:round;stroke-dasharray:70 150}
