@@ -10,6 +10,12 @@ const WAYS: Record<string, string> = {
   create: "Logos, graphics and video that make your brand look right.",
 };
 
+const STEPS = [
+  { t: "Tell us what you need", d: "Send a message with your idea, or what isn't working today." },
+  { t: "Get a plan and a price", d: "We reply by email with how we'd build it, the price and a delivery date." },
+  { t: "We build, you launch", d: "We deliver on the date we gave you, then help it grow if you want." },
+];
+
 export default function Home() {
   return (
     <>
@@ -36,6 +42,20 @@ export default function Home() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section id="how" className="section wrap" style={{ paddingTop: 0 }} aria-labelledby="how-h">
+        <p className="mono eyebrow">How it works</p>
+        <h2 className="h2" id="how-h">Three steps from idea to launch.</h2>
+        <ol className="steps reset">
+          {STEPS.map((s, i) => (
+            <li key={s.t}>
+              <span className="mono" style={{ color: "var(--amber)" }}>Step {i + 1}</span>
+              <h3>{s.t}</h3>
+              <p className="muted">{s.d}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="section wrap" style={{ paddingTop: 0 }} aria-labelledby="team-teaser">
