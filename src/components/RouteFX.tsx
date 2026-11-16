@@ -64,8 +64,9 @@ export function RouteFX() {
   return (
     <div ref={box} className="loader" hidden aria-hidden="true">
       <div className="spin">
-        <svg className="ring" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" /></svg>
-        <svg className="logo" width="30" height="30" style={{ color: "var(--fg)" }}><use href="#mark" /></svg>
+        <div className="orbit o1"><i /></div>
+        <div className="orbit o2" />
+        <svg className="logo" width="34" height="34" style={{ color: "var(--fg)" }}><use href="#mark" /></svg>
       </div>
     </div>
   );

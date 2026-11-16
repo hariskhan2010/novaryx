@@ -64,11 +64,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* page-change loader: spinning ring around the mark */
 .loader{position:fixed;inset:0;z-index:8;display:grid;place-items:center;background:var(--ink);opacity:0;transition:opacity .3s;pointer-events:none}
 .loader.on{opacity:1;pointer-events:auto;transition:none}
-.spin{position:relative;width:80px;height:80px;display:grid;place-items:center}
-.ring{position:absolute;inset:0;width:80px;height:80px;animation:ring .8s linear infinite}
-.ring circle{fill:none;stroke:var(--cobalt);stroke-width:3;stroke-linecap:round;stroke-dasharray:70 150}
+/* tilted 3D ring with an orbiting dot, slightly wobbling */
+.spin{position:relative;width:150px;height:150px;display:grid;place-items:center;perspective:500px}
+.orbit{position:absolute;inset:0;border-radius:50%;transform-style:preserve-3d}
+.o1{border:2px solid var(--cobalt);box-shadow:0 0 18px color-mix(in oklab,var(--cobalt) 45%,transparent);animation:orb1 1.1s linear infinite}
+.o1 i{position:absolute;top:-6px;left:calc(50% - 5px);width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px var(--amber)}
+.o2{inset:14px;border:1px solid color-mix(in oklab,var(--amber) 55%,transparent);animation:orb2 1.6s linear infinite}
+@keyframes orb1{from{transform:rotateX(66deg) rotateY(-14deg) rotateZ(0deg)}50%{transform:rotateX(60deg) rotateY(-6deg) rotateZ(180deg)}to{transform:rotateX(66deg) rotateY(-14deg) rotateZ(360deg)}}
+@keyframes orb2{from{transform:rotateX(70deg) rotateY(22deg) rotateZ(360deg)}to{transform:rotateX(70deg) rotateY(22deg) rotateZ(0deg)}}
 .logo{animation:bob .5s ease-in-out infinite alternate}
-@keyframes ring{to{rotate:360deg}}
 @keyframes bob{to{translate:0 -4px}}
 main:focus{outline:none}
 
