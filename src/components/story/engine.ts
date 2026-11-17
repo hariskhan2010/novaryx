@@ -97,11 +97,24 @@ function drawApp(x: Ctx, w: number, h: number) {
 function drawKeys(x: Ctx, w: number, h: number) {
   x.fillStyle = "#2a2f3b"; x.fillRect(0, 0, w, h);
   rr(x, "#171a22", 60, 34, w - 120, 360, 14);
-  const rows = [14, 14, 13, 12, 11];
-  rows.forEach((n, r) => {
-    const kw = (w - 150 - (n - 1) * 8) / n;
-    for (let k = 0; k < n; k++) rr(x, "#0d0f15", 75 + k * (kw + 8), 50 + r * 66, kw, 56, 8);
+  const rows = [
+    ["esc", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "del"],
+    ["tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "\\"],
+    ["caps", "A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "enter"],
+    ["shift", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/", "shift"],
+    ["fn", "ctrl", "alt", "cmd", "space", "cmd", "alt", "‹", "›", "⌃", "⌄"],
+  ];
+  x.textAlign = "center";
+  rows.forEach((keys, r) => {
+    const n = keys.length, kw = (w - 150 - (n - 1) * 8) / n;
+    keys.forEach((k, i) => {
+      const kx = 75 + i * (kw + 8), ky = 50 + r * 66;
+      rr(x, "#0d0f15", kx, ky, kw, 56, 8);
+      const small = k.length > 1;
+      txt(x, k, kx + kw / 2, ky + (small ? 36 : 42), small ? 19 : 34, "#f2f3f7", 800);
+    });
   });
+  x.textAlign = "start";
   rr(x, "#323846", w / 2 - 190, 430, 380, 230, 18);
 }
 // Layer artwork (shown when the screen splits apart)
@@ -205,7 +218,7 @@ export function initStory(root: HTMLElement): () => void {
   if (renderer) {
     const r = renderer;
     let maxDpr = innerWidth < 760 ? 1.5 : 1.75;
-    r.setPixelRatio(Math.min(devicePixelRatio, maxDpr));
+    r.setPixelRatio(Math.min(Math.max(devicePixelRatio, 1.5), maxDpr));
     r.toneMapping = THREE.ACESFilmicToneMapping;
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.localClippingEnabled = true;
@@ -366,7 +379,7 @@ export function initStory(root: HTMLElement): () => void {
       screenMat.color.setScalar(lerp(1, 0.25, ex));
       layers.forEach((m, i) => {
         m.visible = ex > 0.01;
-        m.position.set(ex * (i - 1.5) * -0.22, SY + ex * (1.5 - i) * 0.72, LT / 2 + 0.01 + ex * (0.5 + i * 0.42));
+        m.position.set(ex * (i - 1.5) * -0.22, SY + ex * ((1.5 - i) * 0.6 + 0.62), LT / 2 + 0.01 + ex * (0.5 + i * 0.42));
         m.scale.setScalar(lerp(1, 0.74, ex));
         (m.material as THREE.MeshBasicMaterial).opacity = ex * 0.96;
         (layerEdges[i].material as THREE.LineBasicMaterial).opacity = ex * 0.8;
@@ -377,13 +390,17 @@ export function initStory(root: HTMLElement): () => void {
         tmp.set(cx, cy, PT / 2); phone.localToWorld(tmp); phoneRight = Math.max(phoneRight, toPx(tmp)[0]);
       }
       const lo2 = eOut(seg(s, 2.45, 2.75)) * (1 - eIn(seg(s, 3.25, 3.45)));
+      // Labels follow their layer but never overlap each other (min gap between rows).
+      const GAP = ph ? 30 : 58;
+      let prevY = -1e9;
       lbls.forEach((l, i) => {
         tmp.set(SW / 2, 0, 0); layers[i].localToWorld(tmp);
         const [px, py] = toPx(tmp);
+        const ly = Math.max(py, prevY + GAP); prevY = ly;
         const lx = ph ? Wpx - 104 : Math.min(Wpx - 250, Math.max(px + 70, phoneRight + 36));
-        l.style.setProperty("--o", lo2.toFixed(3)); l.style.setProperty("--x", lx + "px"); l.style.setProperty("--y", py - 22 + "px");
+        l.style.setProperty("--o", lo2.toFixed(3)); l.style.setProperty("--x", lx + "px"); l.style.setProperty("--y", ly - 22 + "px");
         lines[i].setAttribute("x1", String(px)); lines[i].setAttribute("y1", String(py));
-        lines[i].setAttribute("x2", String(lx - 10)); lines[i].setAttribute("y2", String(py));
+        lines[i].setAttribute("x2", String(lx - 10)); lines[i].setAttribute("y2", String(ly));
         lines[i].style.opacity = String(lo2);
         dots[i].setAttribute("cx", String(px)); dots[i].setAttribute("cy", String(py)); dots[i].style.opacity = String(lo2);
       });
@@ -423,7 +440,7 @@ export function initStory(root: HTMLElement): () => void {
     let slow = 0;
     govern = (dt) => {
       if (dt > 0.034) slow++; else slow = Math.max(0, slow - 1);
-      if (slow > 45 && maxDpr > 1) { maxDpr = Math.max(1, maxDpr - 0.35); r.setPixelRatio(Math.min(devicePixelRatio, maxDpr)); onResize(); slow = 0; }
+      if (slow > 45 && maxDpr > 1) { maxDpr = Math.max(1, maxDpr - 0.35); r.setPixelRatio(Math.min(Math.max(devicePixelRatio, 1.5), maxDpr)); onResize(); slow = 0; }
     };
 
     disposers.push(() => {
