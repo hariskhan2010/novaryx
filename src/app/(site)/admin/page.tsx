@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { isAdmin } from "@/lib/admin/ip";
+import { isAdmin } from "@/lib/admin/auth";
+import { AdminLogin } from "@/components/admin/AdminLogin";
 import { adminConfigured, adminDb } from "@/lib/supabase/admin";
 import { PROJECT_COLS, type Project } from "@/lib/project-types";
 import { ProjectForm } from "@/components/admin/ProjectForm";
-import { deleteProject } from "./actions";
+import { deleteProject, logout } from "./actions";
 
 export const instant = false;
 
@@ -23,7 +23,7 @@ export default function AdminPage({ searchParams }: PageProps<"/admin">) {
 }
 
 async function Admin({ searchParams }: { searchParams: PageProps<"/admin">["searchParams"] }) {
-  if (!(await isAdmin())) notFound();
+  if (!(await isAdmin())) return <AdminLogin />;
   const sp = await searchParams;
   const editId = typeof sp.edit === "string" ? sp.edit : "";
 
@@ -42,7 +42,10 @@ async function Admin({ searchParams }: { searchParams: PageProps<"/admin">["sear
 
   return (
     <>
-      <p className="mono eyebrow">Admin</p>
+      <div className="admin-top">
+        <p className="mono eyebrow">Admin</p>
+        <form action={logout}><button className="btn" type="submit">Sign out</button></form>
+      </div>
       <h1 className="h2">Your projects</h1>
       {sp.saved && <p className="admin-ok" role="status">Saved. It&apos;s live on the Projects page.</p>}
       {sp.deleted && <p className="admin-ok" role="status">Project deleted.</p>}

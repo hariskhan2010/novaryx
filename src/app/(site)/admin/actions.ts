@@ -1,10 +1,32 @@
 "use server";
 import { updateTag } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { assertAdmin } from "@/lib/admin/ip";
+import { ADMIN_COOKIE, COOKIE_MAX_AGE, assertAdmin, passwordConfigured, passwordMatches, sessionToken } from "@/lib/admin/auth";
 import { adminDb, BUCKET } from "@/lib/supabase/admin";
 import { SUPABASE_URL } from "@/lib/supabase/env";
 import { CATEGORIES } from "@/lib/project-types";
+
+export type LoginState = { error?: string };
+
+/** Checks the admin password and remembers this device for 30 days. */
+export async function login(_prev: LoginState, f: FormData): Promise<LoginState> {
+  if (!passwordConfigured()) return { error: "Admin password is not set. Add ADMIN_PASSWORD (8+ characters) to the environment." };
+  const input = String(f.get("password") ?? "").slice(0, 200);
+  if (!passwordMatches(input)) {
+    await new Promise((r) => setTimeout(r, 900)); // slows down guessing
+    return { error: "Wrong password." };
+  }
+  (await cookies()).set(ADMIN_COOKIE, sessionToken(), {
+    httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", maxAge: COOKIE_MAX_AGE,
+  });
+  redirect("/admin");
+}
+
+export async function logout() {
+  (await cookies()).delete(ADMIN_COOKIE);
+  redirect("/admin");
+}
 
 export type SaveState = { error?: string; fields?: Partial<Record<"title" | "summary" | "category" | "demo_url" | "year", string>> };
 
