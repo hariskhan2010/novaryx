@@ -11,6 +11,13 @@ export const WHY_US = [
   { t: "On-time delivery", d: "You get a delivery date at the start, and we hit it." },
 ];
 
+export const HOW_WE_WORK = [
+  { t: "You tell us", d: "Send your idea on the Contact page and we reply by email." },
+  { t: "We agree the plan", d: "Scope, price and delivery date are written down before any work starts." },
+  { t: "We build it", d: "Design, code and testing, all done by us, with updates as each part is ready." },
+  { t: "You launch", d: "We hand it over on the agreed date and stay on hand for fixes and growth." },
+];
+
 export const MISSION = {
   lead: "We started NOVARYX to sell something rare online: trust.",
   body: "Every client should get exactly what they asked for: the design they pictured, built the way they wanted, delivered when we said. No client should walk away disappointed.",
@@ -76,4 +83,3 @@ export const SERVICE_GROUPS = [
   },
 ];
 
-export const NEEDS = ["A ready-made project", "A custom project", "SEO or marketing", "Design or video", "Something else"];

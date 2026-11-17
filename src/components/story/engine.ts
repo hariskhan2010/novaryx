@@ -4,7 +4,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 /* Scroll-driven 3D story: a laptop + phone are "built" by a laser scan, then the
    laptop screen splits into its four layers (design, frontend, backend, AI),
-   giant words fly past, then a subscription ring orbits the devices.
+   giant words fly past, then a ring orbits the devices.
    All stage motion reads sCur/time; no CSS animations. */
 
 const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -35,53 +35,53 @@ function txt(x: Ctx, s: string, a: number, b: number, size: number, color: strin
 
 // ── Screen artwork ─────────────────────────────────────
 function drawSite(x: Ctx, w: number, h: number) {
-  x.fillStyle = "#0b1022"; x.fillRect(0, 0, w, h);
-  rr(x, "#121a3a", 0, 0, w, 64, 0);
-  rr(x, "#7590ff", 28, 20, 24, 24, 6);
+  x.fillStyle = "#0b0b0b"; x.fillRect(0, 0, w, h);
+  rr(x, "#141414", 0, 0, w, 64, 0);
+  rr(x, "#e50914", 28, 20, 24, 24, 6);
   txt(x, "NOVARYX", 62, 41, 22, "#ffffff", 800);
-  ["Projects", "Services", "About"].forEach((l, i) => txt(x, l, 600 + i * 100, 40, 17, "#8e96b6", 600));
-  rr(x, "#7590ff", 900, 16, 100, 32, 16); txt(x, "Start", 928, 38, 15, "#0a0d18", 700);
+  ["Projects", "Services", "About"].forEach((l, i) => txt(x, l, 600 + i * 100, 40, 17, "#9a9a9a", 600));
+  rr(x, "#e50914", 900, 16, 100, 32, 16); txt(x, "Start", 928, 38, 15, "#ffffff", 700);
   txt(x, "We build it.", 48, 150, 54, "#ffffff", 800);
-  txt(x, "You use it.", 48, 212, 54, "#7590ff", 800);
-  rr(x, "#2a3260", 48, 238, 420, 10, 5); rr(x, "#2a3260", 48, 258, 340, 10, 5);
-  rr(x, "#7590ff", 48, 290, 180, 46, 23); txt(x, "See projects", 74, 320, 17, "#0a0d18", 700);
-  x.strokeStyle = "#3a4478"; x.lineWidth = 2; x.beginPath(); x.roundRect(242, 290, 150, 46, 23); x.stroke();
-  txt(x, "Custom", 286, 320, 17, "#e8ebf6", 600);
+  txt(x, "You use it.", 48, 212, 54, "#e50914", 800);
+  rr(x, "#2a2a2a", 48, 238, 420, 10, 5); rr(x, "#2a2a2a", 48, 258, 340, 10, 5);
+  rr(x, "#e50914", 48, 290, 180, 46, 23); txt(x, "See projects", 74, 320, 17, "#ffffff", 700);
+  x.strokeStyle = "#3a3a3a"; x.lineWidth = 2; x.beginPath(); x.roundRect(242, 290, 150, 46, 23); x.stroke();
+  txt(x, "Custom", 286, 320, 17, "#f5f5f1", 600);
   const g = x.createLinearGradient(600, 96, 976, 340);
-  g.addColorStop(0, "#2c48ff"); g.addColorStop(1, "#ffb15c");
+  g.addColorStop(0, "#b20710"); g.addColorStop(1, "#ff5a5f");
   rr(x, g, 600, 96, 376, 250, 22);
   x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = 5; x.beginPath();
   for (let i = 0; i <= 10; i++) { const px = 630 + i * 31, py = 300 - i * 14 - 26 * Math.sin(i * 0.9); if (i) x.lineTo(px, py); else x.moveTo(px, py); }
   x.stroke();
-  const cards: [string, string][] = [["Web app", "#4fd1a1"], ["Website", "#7590ff"], ["AI tool", "#ffb15c"]];
+  const cards: [string, string][] = [["Web app", "#4fd1a1"], ["Website", "#e50914"], ["AI tool", "#ff5a5f"]];
   cards.forEach(([t, c], i) => {
     const cx = 48 + i * 318;
-    rr(x, "#161f45", cx, 386, 296, 220, 18);
+    rr(x, "#161616", cx, 386, 296, 220, 18);
     rr(x, c, cx + 14, 400, 268, 110, 12);
-    rr(x, "rgba(10,13,24,.35)", cx + 30, 420, 120, 14, 7);
+    rr(x, "rgba(0,0,0,.35)", cx + 30, 420, 120, 14, 7);
     txt(x, t, cx + 18, 548, 22, "#ffffff", 700);
-    rr(x, "#2a3260", cx + 18, 566, 150, 12, 6);
+    rr(x, "#2a2a2a", cx + 18, 566, 150, 12, 6);
   });
 }
 function drawApp(x: Ctx, w: number, h: number) {
-  rr(x, "#0b1022", 0, 0, w, h, 48);
+  rr(x, "#0b0b0b", 0, 0, w, h, 48);
   txt(x, "9:41", 34, 46, 20, "#ffffff", 700);
   rr(x, "#05060a", w / 2 - 50, 22, 100, 28, 14);
   rr(x, "#ffffff", w - 70, 32, 36, 14, 4);
   txt(x, "My projects", 30, 120, 34, "#ffffff", 800);
-  rr(x, "#2a3260", 30, 140, 200, 12, 6);
-  const rows: [string, string, string][] = [["Web app", "Active", "#4fd1a1"], ["Website", "Active", "#4fd1a1"], ["AI tool", "Pending", "#ffb15c"]];
+  rr(x, "#2a2a2a", 30, 140, 200, 12, 6);
+  const rows: [string, string, string][] = [["Web app", "Active", "#4fd1a1"], ["Website", "Active", "#4fd1a1"], ["AI tool", "Pending", "#ff5a5f"]];
   rows.forEach(([t, st, c], i) => {
     const y = 186 + i * 118;
-    rr(x, "#161f45", 22, y, w - 44, 100, 20);
+    rr(x, "#161616", 22, y, w - 44, 100, 20);
     rr(x, c, 40, y + 22, 56, 56, 14);
     txt(x, t, 112, y + 46, 21, "#ffffff", 700);
     rr(x, c + "33", 112, y + 58, 84, 26, 13);
     txt(x, st, 124, y + 77, 14, c, 700);
   });
-  rr(x, "#7590ff", 22, h - 170, w - 44, 64, 32);
-  txt(x, "Order custom project", 74, h - 129, 21, "#0a0d18", 800);
-  [0, 1, 2, 3].forEach((i) => rr(x, i === 0 ? "#7590ff" : "#2a3260", 50 + i * ((w - 140) / 3), h - 64, 40, 8, 4));
+  rr(x, "#e50914", 22, h - 170, w - 44, 64, 32);
+  txt(x, "Start a project", 74, h - 129, 21, "#ffffff", 800);
+  [0, 1, 2, 3].forEach((i) => rr(x, i === 0 ? "#e50914" : "#2a2a2a", 50 + i * ((w - 140) / 3), h - 64, 40, 8, 4));
 }
 function drawKeys(x: Ctx, w: number, h: number) {
   x.fillStyle = "#2a2f3b"; x.fillRect(0, 0, w, h);
@@ -95,51 +95,51 @@ function drawKeys(x: Ctx, w: number, h: number) {
 }
 // Layer artwork (shown when the screen splits apart)
 function drawDesign(x: Ctx, w: number, h: number) {
-  rr(x, "rgba(16,22,52,.92)", 0, 0, w, h, 26);
-  x.setLineDash([12, 10]); x.strokeStyle = "#c9d2ff"; x.lineWidth = 3;
+  rr(x, "rgba(20,20,20,.92)", 0, 0, w, h, 26);
+  x.setLineDash([12, 10]); x.strokeStyle = "#e8e8e8"; x.lineWidth = 3;
   [[48, 40, w - 96, 50], [48, 130, 430, 150], [520, 130, w - 568, 220], [48, 400, 290, 180], [366, 400, 290, 180], [684, 400, 292, 180]].forEach(([a, b, c, d]) => { x.beginPath(); x.roundRect(a, b, c, d, 14); x.stroke(); });
   x.setLineDash([]);
   txt(x, "Aa", 70, 250, 110, "#ffffff", 800);
-  ["#7590ff", "#ffb15c", "#4fd1a1", "#e8ebf6"].forEach((c, i) => { x.beginPath(); x.arc(560 + i * 92, 260, 34, 0, 7); x.fillStyle = c; x.fill(); });
-  txt(x, "DESIGN · UI/UX", 60, 74, 22, "#ffb15c", 700, true);
+  ["#e50914", "#ff5a5f", "#4fd1a1", "#f5f5f1"].forEach((c, i) => { x.beginPath(); x.arc(560 + i * 92, 260, 34, 0, 7); x.fillStyle = c; x.fill(); });
+  txt(x, "DESIGN · UI/UX", 60, 74, 22, "#ff5a5f", 700, true);
 }
 function drawBackend(x: Ctx, w: number, h: number) {
-  rr(x, "rgba(8,11,24,.94)", 0, 0, w, h, 26);
-  rr(x, "#121831", 0, 0, w, 54, 0);
-  ["#ff6b7a", "#ffb15c", "#4fd1a1"].forEach((c, i) => { x.beginPath(); x.arc(32 + i * 26, 27, 8, 0, 7); x.fillStyle = c; x.fill(); });
-  txt(x, "api/projects/route.ts", 130, 35, 18, "#8e96b6", 500, true);
+  rr(x, "rgba(10,10,10,.94)", 0, 0, w, h, 26);
+  rr(x, "#121212", 0, 0, w, 54, 0);
+  ["#ff6b7a", "#ff5a5f", "#4fd1a1"].forEach((c, i) => { x.beginPath(); x.arc(32 + i * 26, 27, 8, 0, 7); x.fillStyle = c; x.fill(); });
+  txt(x, "api/projects/route.ts", 130, 35, 18, "#9a9a9a", 500, true);
   const code: [string, string][] = [
     ["export async function GET() {", "#c792ea"],
-    ["  const projects = await db", "#e8ebf6"],
+    ["  const projects = await db", "#f5f5f1"],
     ["    .from(\"projects\")", "#4fd1a1"],
     ["    .select(\"*\")", "#4fd1a1"],
-    ["    .eq(\"published\", true);", "#ffb15c"],
-    ["  return Response.json(projects);", "#7590ff"],
+    ["    .eq(\"published\", true);", "#ff5a5f"],
+    ["  return Response.json(projects);", "#e50914"],
     ["}", "#c792ea"],
   ];
-  code.forEach(([l, c], i) => { txt(x, String(i + 1), 26, 110 + i * 56, 22, "#3a4478", 500, true); txt(x, l, 70, 110 + i * 56, 26, c, 500, true); });
+  code.forEach(([l, c], i) => { txt(x, String(i + 1), 26, 110 + i * 56, 22, "#3a3a3a", 500, true); txt(x, l, 70, 110 + i * 56, 26, c, 500, true); });
   const dx = 840, dy = 160;
   for (let i = 2; i >= 0; i--) {
-    x.fillStyle = "#2c48ff"; x.fillRect(dx - 80, dy + i * 70, 160, 50);
+    x.fillStyle = "#b20710"; x.fillRect(dx - 80, dy + i * 70, 160, 50);
     x.beginPath(); x.ellipse(dx, dy + i * 70 + 50, 80, 22, 0, 0, 7); x.fill();
-    x.beginPath(); x.ellipse(dx, dy + i * 70, 80, 22, 0, 0, 7); x.fillStyle = "#7590ff"; x.fill();
+    x.beginPath(); x.ellipse(dx, dy + i * 70, 80, 22, 0, 0, 7); x.fillStyle = "#e50914"; x.fill();
   }
-  txt(x, "DATABASE", dx - 62, dy + 270, 20, "#8e96b6", 700, true);
+  txt(x, "DATABASE", dx - 62, dy + 270, 20, "#9a9a9a", 700, true);
 }
 function drawAI(x: Ctx, w: number, h: number) {
   const g = x.createLinearGradient(0, 0, w, h);
-  g.addColorStop(0, "rgba(30,40,120,.95)"); g.addColorStop(1, "rgba(10,13,34,.95)");
+  g.addColorStop(0, "rgba(90,8,14,.95)"); g.addColorStop(1, "rgba(12,12,12,.95)");
   x.fillStyle = g; x.beginPath(); x.roundRect(0, 0, w, h, 26); x.fill();
   txt(x, "✦ AI Assistant", 48, 70, 30, "#ffffff", 800);
-  rr(x, "#7590ff", w - 520, 110, 470, 70, 24); txt(x, "Build me a booking app", w - 494, 155, 26, "#0a0d18", 700);
-  rr(x, "#1d2658", 48, 210, 600, 120, 24);
+  rr(x, "#e50914", w - 520, 110, 470, 70, 24); txt(x, "Build me a booking app", w - 494, 155, 26, "#ffffff", 700);
+  rr(x, "#1c1c1c", 48, 210, 600, 120, 24);
   txt(x, "Sure. Here is the plan:", 76, 256, 26, "#ffffff", 600);
-  txt(x, "bookings, payments, reminders.", 76, 300, 26, "#c9d2ff", 500);
-  rr(x, "#1d2658", 48, 360, 220, 60, 22);
-  [0, 1, 2].forEach((i) => { x.beginPath(); x.arc(110 + i * 46, 390, 10, 0, 7); x.fillStyle = "#ffb15c"; x.fill(); });
+  txt(x, "bookings, payments, reminders.", 76, 300, 26, "#e8e8e8", 500);
+  rr(x, "#1c1c1c", 48, 360, 220, 60, 22);
+  [0, 1, 2].forEach((i) => { x.beginPath(); x.arc(110 + i * 46, 390, 10, 0, 7); x.fillStyle = "#ff5a5f"; x.fill(); });
   rr(x, "rgba(255,255,255,.08)", 48, h - 110, w - 96, 66, 33);
-  txt(x, "Ask anything…", 84, h - 68, 24, "#8e96b6", 500);
-  rr(x, "#ffb15c", w - 120, h - 104, 54, 54, 27);
+  txt(x, "Ask anything…", 84, h - 68, 24, "#9a9a9a", 500);
+  rr(x, "#ff5a5f", w - 120, h - 104, 54, 54, 27);
 }
 
 export function initStory(root: HTMLElement): () => void {
@@ -207,7 +207,7 @@ export function initStory(root: HTMLElement): () => void {
     const key = new THREE.DirectionalLight(0xffffff, 1.8);
     key.position.set(4, 6, 5);
     scene.add(key);
-    const rim = new THREE.DirectionalLight(0x9fb0ff, 1.2);
+    const rim = new THREE.DirectionalLight(0xff9fa3, 1.2);
     rim.position.set(-5, 2, -4);
     scene.add(rim);
 
@@ -256,7 +256,7 @@ export function initStory(root: HTMLElement): () => void {
     layerTex.forEach((t) => {
       const m = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
       m.visible = false; lid.add(m); layers.push(m);
-      const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x7590ff, transparent: true, opacity: 0 }));
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0xe50914, transparent: true, opacity: 0 }));
       m.add(e); layerEdges.push(e);
     });
 
@@ -275,18 +275,18 @@ export function initStory(root: HTMLElement): () => void {
 
     const laserTex = canvasTex((x, w, h) => {
       const g = x.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, "rgba(255,177,92,0)"); g.addColorStop(0.5, "rgba(255,200,130,1)"); g.addColorStop(1, "rgba(255,177,92,0)");
+      g.addColorStop(0, "rgba(229,9,20,0)"); g.addColorStop(0.5, "rgba(255,120,125,1)"); g.addColorStop(1, "rgba(229,9,20,0)");
       x.fillStyle = g; x.fillRect(0, 0, w, h);
     }, 64, 64);
-    const laser = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 3.4), new THREE.MeshBasicMaterial({ color: 0xffb15c, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    const laser = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 3.4), new THREE.MeshBasicMaterial({ color: 0xff5a5f, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
     laser.rotation.x = -Math.PI / 2; scene.add(laser);
     const laserLine = new THREE.Mesh(new THREE.PlaneGeometry(7, 0.035), new THREE.MeshBasicMaterial({ map: laserTex, color: 0xffd0a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
     scene.add(laserLine);
 
     const ringG = new THREE.Group(); scene.add(ringG);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.012, 8, 180), new THREE.MeshBasicMaterial({ color: 0x7590ff, transparent: true }));
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.012, 8, 180), new THREE.MeshBasicMaterial({ color: 0xe50914, transparent: true }));
     ringG.add(ring);
-    const nodes = [0, 1, 2].map(() => { const n = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffb15c, transparent: true })); ringG.add(n); return n; });
+    const nodes = [0, 1, 2].map(() => { const n = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff5a5f, transparent: true })); ringG.add(n); return n; });
     const comet = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true }));
     ringG.add(comet);
 
@@ -294,7 +294,7 @@ export function initStory(root: HTMLElement): () => void {
     let sd = 3; const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
     for (let i = 0; i < N; i++) { pp[i * 3] = (rnd() - 0.5) * 16; pp[i * 3 + 1] = (rnd() - 0.5) * 9; pp[i * 3 + 2] = (rnd() - 0.5) * 6 - 2; }
     pg.setAttribute("position", new THREE.BufferAttribute(pp, 3));
-    const pts = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.025, color: 0x9fb0ff, transparent: true, opacity: 0.55, depthWrite: false }));
+    const pts = new THREE.Points(pg, new THREE.PointsMaterial({ size: 0.025, color: 0xff9fa3, transparent: true, opacity: 0.55, depthWrite: false }));
     scene.add(pts);
 
     onTheme = () => {

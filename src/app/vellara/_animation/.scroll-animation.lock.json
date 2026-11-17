@@ -1,0 +1,18 @@
+{
+  "skillVersion": "1.0.0",
+  "dir": "src/app/vellara/_animation",
+  "engines": [
+    "agnostic",
+    "css",
+    "gsap"
+  ],
+  "files": {
+    "config.ts": "e65dc072b75ec324",
+    "scale.ts": "322b05138c6a47d1",
+    "gsap/setup.ts": "fb9601866eb05ace",
+    "scene.ts": "681c45e78fd3add5",
+    "css/animation.css": "7aa944c76accd5b7",
+    "css/scene.css": "2862e3dd2903c50f",
+    "gsap/pinned-scene.ts": "66bd7063f88e5ba6"
+  }
+}

@@ -30,10 +30,10 @@ export function StoryHero() {
             <div className="scene" data-r="-1,0,.55,.95" style={{ ["--o" as string]: 1 }}>
               <p className="mono kick">Software studio · Peshawar, Pakistan</p>
               <h1>We build it. <span style={{ color: "var(--cobalt)" }}>You use it</span> from day one.</h1>
-              <p className="lede">Subscribe to apps, websites and AI tools we have already built, or tell us what you need and we build it for you.</p>
+              <p className="lede">See the apps, websites and AI tools we have built, or tell us what you need and we build it for you.</p>
               <div className="btns">
                 <Link className="btn btn-pri" href="/projects">See the projects</Link>
-                <Link className="btn" href="/contact">Order a custom project</Link>
+                <Link className="btn" href="/contact">Start a project</Link>
               </div>
             </div>
             <div className="scene" data-r="1.0,1.3,2.0,2.2">
@@ -54,13 +54,13 @@ export function StoryHero() {
             <div className="lbl" aria-hidden="true"><b>Frontend</b><span className="mono">Web · iOS · Android</span></div>
             <div className="lbl" aria-hidden="true"><b>Backend</b><span className="mono">APIs · data · integrations</span></div>
             <div className="lbl" aria-hidden="true"><b>AI</b><span className="mono">Assistants · automations</span></div>
-            <div className="rl mono" aria-hidden="true">01 Choose</div>
-            <div className="rl mono" aria-hidden="true">02 Subscribe</div>
-            <div className="rl mono" aria-hidden="true">03 Use it</div>
+            <div className="rl mono" aria-hidden="true">01 Tell us</div>
+            <div className="rl mono" aria-hidden="true">02 We build</div>
+            <div className="rl mono" aria-hidden="true">03 You launch</div>
             <div className="scene" data-r="4.8,5.1,7,8">
               <p className="mono kick">How it works</p>
-              <h2>Pick a project. Subscribe. Start using it.</h2>
-              <p className="lede">Use it live and hosted, have us set it up on your server, or take the full source code.</p>
+              <h2>Tell us your idea. We build it. You launch it.</h2>
+              <p className="lede">We design, build and test every part, then hand it over ready to use.</p>
               <div className="btns">
                 <Link className="btn btn-pri" href="/projects">See the projects</Link>
                 <Link className="btn" href="/about">Meet the partners</Link>

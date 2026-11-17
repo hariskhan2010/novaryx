@@ -1,25 +1,27 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { Project } from "@/lib/project-types";
 
 const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 const CATS = [
-  { id: "web", label: "Web apps", d: "Dashboards, booking systems, stores and internal tools that run in the browser." },
-  { id: "site", label: "Websites", d: "Business sites, portfolios and landing pages, fast and ready to rank." },
-  { id: "mob", label: "Mobile apps", d: "Apps for Android and iOS, built from one codebase." },
-  { id: "ai", label: "AI tools", d: "Chat assistants and automations that take repetitive work off your plate." },
+  { id: "web", cat: "Web app", label: "Web apps", d: "Dashboards, booking systems, stores and internal tools that run in the browser." },
+  { id: "site", cat: "Website", label: "Websites", d: "Business sites, portfolios and landing pages, fast and ready to rank." },
+  { id: "mob", cat: "Mobile app", label: "Mobile apps", d: "Apps for Android and iOS, built from one codebase." },
+  { id: "ai", cat: "AI tool", label: "AI tools", d: "Chat assistants and automations that take repetitive work off your plate." },
 ];
 
-// Same wording as the delivery options in the store.
+// What every project listing shows.
 const OPTIONS = [
-  { t: "Live hosted app", d: "Use the project online. We host and maintain it for you." },
-  { t: "Setup & customization", d: "We install it on your server or domain and customize it for you." },
-  { t: "Source code", d: "Download the full source code and run it yourself." },
+  { t: "Full details", d: "What the client needed, what we built and how it works." },
+  { t: "Tech used", d: "The stack and tools behind each project." },
+  { t: "Want one like it?", d: "Tell us your idea on the Contact page and we'll build it for you." },
 ];
 
 /** Project categories as tabs; one pill slides to the selected tab. */
-export function CategoryTabs() {
-  const [sel, setSel] = useState(0);
+export function CategoryTabs({ projects = [] }: { projects?: Project[] }) {
+  const [sel, setSel] = useState(() => Math.max(0, CATS.findIndex((c) => projects.some((p) => p.category === c.cat))));
   const list = useRef<HTMLDivElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -51,6 +53,7 @@ export function CategoryTabs() {
   }
 
   const c = CATS[sel];
+  const list2 = projects.filter((p) => p.category === c.cat);
   return (
     <>
       <div className="tabs" role="tablist" aria-label="Project categories" ref={list}>
@@ -71,6 +74,22 @@ export function CategoryTabs() {
             {OPTIONS.map((o) => <div key={o.t}><b>{o.t}</b><span className="muted">{o.d}</span></div>)}
           </div>
         </div>
+        <ul className="pgrid reset" aria-label={`${c.label} projects`}>
+          {list2.length === 0 && <li className="pempty muted">No {c.label.toLowerCase()} listed yet. <Link href="/contact">Tell us about yours.</Link></li>}
+          {list2.map((p) => (
+            <li key={p.id}>
+              <Link className="pcard" href={`/projects/${p.slug}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {p.cover_url ? <img src={p.cover_url} alt="" loading="lazy" /> : <span className="pcard-ph" aria-hidden="true">{p.title.slice(0, 1)}</span>}
+                <span className="mono" style={{ color: "var(--amber)" }}>{p.category}{p.year ? ` · ${p.year}` : ""}</span>
+                <b>{p.title}</b>
+                <span className="muted">{p.summary}</span>
+                {p.tech.length > 0 && <span className="pcard-tech">{p.tech.slice(0, 4).join(" · ")}</span>}
+                <span className="pcard-more">View details →</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );

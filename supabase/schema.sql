@@ -124,7 +124,8 @@ create policy "access: admin writes" on public.project_access
 create table if not exists public.custom_requests (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid default auth.uid() references auth.users (id) on delete set null,
-  name         text not null check (char_length(name) between 2 and 120),
+  name         text not null default '' check (char_length(name) <= 120),
+  phone        text not null default '' check (char_length(phone) <= 30),
   email        text not null check (char_length(email) <= 200 and email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
   project_type text not null default '' check (char_length(project_type) <= 60),
   budget       text not null default '' check (char_length(budget) <= 60),
@@ -132,6 +133,13 @@ create table if not exists public.custom_requests (
   status       text not null default 'new' check (status in ('new', 'contacted', 'closed')),
   created_at   timestamptz not null default now()
 );
+
+-- Migration for databases created before the phone field (safe to re-run).
+alter table public.custom_requests add column if not exists phone text not null default '' check (char_length(phone) <= 30);
+alter table public.custom_requests drop constraint if exists custom_requests_name_check;
+alter table public.custom_requests alter column name set default '';
+alter table public.custom_requests add constraint custom_requests_name_check check (char_length(name) <= 120);
+
 alter table public.custom_requests enable row level security;
 
 drop policy if exists "requests: anyone sends" on public.custom_requests;
@@ -209,3 +217,15 @@ create policy "sources: active source subscribers read" on storage.objects
 -- 1. Sign up on your site first.
 -- 2. Then run this line with YOUR email:
 -- insert into public.admins (user_id) select id from auth.users where email = 'you@example.com';
+
+-- ── Portfolio project details + image bucket (added 2026-11-17) ──
+alter table public.projects add column if not exists client      text   not null default '' check (char_length(client) <= 120);
+alter table public.projects add column if not exists client_need text   not null default '' check (char_length(client_need) <= 3000);
+alter table public.projects add column if not exists delivered   text   not null default '' check (char_length(delivered) <= 3000);
+alter table public.projects add column if not exists year        int             check (year between 2000 and 2100);
+alter table public.projects add column if not exists gallery     text[] not null default '{}';
+
+-- 3) Public image bucket for project covers and screenshots (10 MB, images only).
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('projects', 'projects', true, 10485760, array['image/jpeg','image/png','image/webp','image/avif'])
+on conflict (id) do update set public = true, file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;

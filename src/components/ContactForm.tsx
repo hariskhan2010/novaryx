@@ -1,7 +1,6 @@
 "use client";
 import { useActionState, useEffect, useRef } from "react";
-import { sendMessage, type ContactState } from "@/app/contact/actions";
-import { NEEDS } from "@/lib/content";
+import { sendMessage, type ContactState } from "@/app/(site)/contact/actions";
 
 const shake = (el: Element | null) => {
   if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -36,27 +35,26 @@ export function ContactForm() {
     <form ref={form} className="form" action={action} noValidate>
       <h2 className="sr">Send us a message</h2>
       <div className="hp" aria-hidden="true"><label htmlFor="f-web">Website</label><input id="f-web" name="website" tabIndex={-1} autoComplete="off" /></div>
-      <div className="field">
-        <label htmlFor="f-name">Your name</label>
-        <input className="input" id="f-name" name="name" autoComplete="name" aria-invalid={f.name ? true : undefined} aria-describedby={f.name ? "e-name" : undefined} />
-        {f.name && <span className="field-err" id="e-name">{f.name}</span>}
+      <p className="mono form-title" aria-hidden="true">Send a message</p>
+      <div className="row2">
+        <div className="field">
+          <label htmlFor="f-phone">Phone number</label>
+          <input className="input" id="f-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="+92 300 1234567" aria-invalid={f.phone ? true : undefined} aria-describedby={f.phone ? "e-phone" : undefined} />
+          {f.phone && <span className="field-err" id="e-phone">{f.phone}</span>}
+        </div>
+        <div className="field">
+          <label htmlFor="f-email">Email address</label>
+          <input className="input" id="f-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" aria-invalid={f.email ? true : undefined} aria-describedby={f.email ? "e-email" : undefined} />
+          {f.email && <span className="field-err" id="e-email">{f.email}</span>}
+        </div>
       </div>
       <div className="field">
-        <label htmlFor="f-email">Email</label>
-        <input className="input" id="f-email" name="email" type="email" autoComplete="email" aria-invalid={f.email ? true : undefined} aria-describedby={f.email ? "e-email" : undefined} />
-        {f.email && <span className="field-err" id="e-email">{f.email}</span>}
-      </div>
-      <div className="field">
-        <label htmlFor="f-need">What do you need?</label>
-        <select className="input" id="f-need" name="need">{NEEDS.map((n) => <option key={n}>{n}</option>)}</select>
-      </div>
-      <div className="field">
-        <label htmlFor="f-details">Project details</label>
-        <textarea className="input" id="f-details" name="details" placeholder="What should it do, who is it for, and when do you need it?" aria-invalid={f.details ? true : undefined} aria-describedby={f.details ? "e-details" : undefined} />
+        <label htmlFor="f-details">Your message</label>
+        <textarea className="input" id="f-details" name="details" placeholder="Tell us what you want us to build or do for you." aria-invalid={f.details ? true : undefined} aria-describedby={f.details ? "e-details" : undefined} />
         {f.details && <span className="field-err" id="e-details">{f.details}</span>}
       </div>
       <p className="err" aria-live="polite">{state.error}</p>
-      <button className="btn btn-pri" type="submit" disabled={pending} style={{ justifySelf: "start" }}>{pending ? "Sending…" : "Send request"}</button>
+      <button className="btn btn-pri form-submit" type="submit" disabled={pending}>{pending ? "Sending…" : "Send message"}</button>
     </form>
   );
 }
