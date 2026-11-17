@@ -44,7 +44,7 @@ export default function Home() {
             <p className="mono eyebrow">The partners</p>
             <h2 className="h2" id="team-teaser" style={{ fontSize: "clamp(30px,4vw,54px)" }}>Three partners. One promise.</h2>
             <p className="lead" style={{ fontSize: 17 }}>An AI-native engineer, a marketer and a designer. You talk to the people doing the work.</p>
-            <Link className="btn" href="/about" style={{ marginTop: 24 }}>Meet the partners →</Link>
+            <Link className="btn" href="/about#partners-h" style={{ marginTop: 24 }}>Meet the partners →</Link>
           </div>
           <ul className="crew reset">
             {TEAM.map((m) => (

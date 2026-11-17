@@ -104,7 +104,8 @@ main:focus{outline:none}
 .scene .lede{margin-top:20px;font-size:clamp(17px,1.5vw,20px);color:var(--muted);max-width:450px}
 .bar{height:3px;background:var(--line);border-radius:3px;overflow:hidden;width:260px;margin-top:8px}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cobalt),var(--amber));width:var(--p,0%)}
-.lbl{position:absolute;left:0;top:0;opacity:var(--o,0);translate:var(--x,0) var(--y,0);white-space:nowrap}
+.lbl{position:absolute;left:0;top:0;opacity:var(--o,0);translate:var(--x,0) var(--y,0);white-space:nowrap;text-shadow:0 2px 14px #000,0 0 4px #000}
+#partners-h{scroll-margin-top:110px}
 .lbl b{display:block;font:800 clamp(16px,1.6vw,22px)/1.1 var(--display);font-stretch:112%}
 .lbl span{color:var(--muted)}
 .leaders{position:absolute;inset:0;width:100%;height:100%;overflow:visible}

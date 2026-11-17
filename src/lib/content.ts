@@ -36,7 +36,7 @@ export type Member = {
 
 export const TEAM: Member[] = [
   {
-    id: "haris", name: "Muhammad Haris", role: "Founder & Team Leader", title: "AI-Native Engineer", photo: haris,
+    id: "haris", name: "Muhammad Haris", role: "Founder", title: "AI-Native Engineer", photo: haris,
     bio: "Haris founded NOVARYX and leads every project from the first message to the final delivery. He builds with Claude at the core of his workflow, which means faster delivery and cleaner code.",
     skills: ["Web Development", "App Development", "AI & Automation", "Team Leadership"],
     stat: { value: "AI", label: "native engineer" },

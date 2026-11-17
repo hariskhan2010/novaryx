@@ -16,13 +16,17 @@ const eIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3
 const SPAN = 6;
 
 type Ctx = CanvasRenderingContext2D;
-function canvasTex(draw: (x: Ctx, w: number, h: number) => void, w = 1024, h = 640) {
+/** Draws at 2x so screen text stays sharp when the camera is close. */
+function canvasTex(draw: (x: Ctx, w: number, h: number) => void, w = 1024, h = 640, k = 2) {
   const c = document.createElement("canvas");
-  c.width = w; c.height = h;
-  draw(c.getContext("2d")!, w, h);
+  c.width = w * k; c.height = h * k;
+  const x = c.getContext("2d")!;
+  x.scale(k, k);
+  x.textBaseline = "alphabetic";
+  draw(x, w, h);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
+  t.anisotropy = 16;
   return t;
 }
 function rr(x: Ctx, c: string | CanvasGradient, a: number, b: number, w: number, h: number, r: number) {
@@ -43,7 +47,8 @@ function drawSite(x: Ctx, w: number, h: number) {
   rr(x, "#e50914", 900, 16, 100, 32, 16); txt(x, "Start", 928, 38, 15, "#ffffff", 700);
   txt(x, "We build it.", 48, 150, 54, "#ffffff", 800);
   txt(x, "You use it.", 48, 212, 54, "#e50914", 800);
-  rr(x, "#2a2a2a", 48, 238, 420, 10, 5); rr(x, "#2a2a2a", 48, 258, 340, 10, 5);
+  txt(x, "Apps, websites and AI tools, built for you.", 48, 250, 17, "#b5b5b5", 500);
+  txt(x, "Reliable · Clear payments · On time", 48, 274, 15, "#7a7a7a", 500);
   rr(x, "#e50914", 48, 290, 180, 46, 23); txt(x, "See projects", 74, 320, 17, "#ffffff", 700);
   x.strokeStyle = "#3a3a3a"; x.lineWidth = 2; x.beginPath(); x.roundRect(242, 290, 150, 46, 23); x.stroke();
   txt(x, "Custom", 286, 320, 17, "#f5f5f1", 600);
@@ -53,14 +58,20 @@ function drawSite(x: Ctx, w: number, h: number) {
   x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = 5; x.beginPath();
   for (let i = 0; i <= 10; i++) { const px = 630 + i * 31, py = 300 - i * 14 - 26 * Math.sin(i * 0.9); if (i) x.lineTo(px, py); else x.moveTo(px, py); }
   x.stroke();
-  const cards: [string, string][] = [["Web app", "#4fd1a1"], ["Website", "#e50914"], ["AI tool", "#ff5a5f"]];
-  cards.forEach(([t, c], i) => {
+  txt(x, "Projects", 622, 130, 18, "rgba(255,255,255,.92)", 700);
+  const cards: [string, string, string, string][] = [
+    ["Web app", "#4fd1a1", "Booking system", "Next.js · Supabase"],
+    ["Website", "#e50914", "Business site", "Fast · SEO ready"],
+    ["AI tool", "#ff5a5f", "Chat assistant", "Answers 24/7"],
+  ];
+  cards.forEach(([t, c, d, m], i) => {
     const cx = 48 + i * 318;
     rr(x, "#161616", cx, 386, 296, 220, 18);
     rr(x, c, cx + 14, 400, 268, 110, 12);
-    rr(x, "rgba(0,0,0,.35)", cx + 30, 420, 120, 14, 7);
+    txt(x, d, cx + 30, 432, 17, "rgba(0,0,0,.75)", 800);
+    rr(x, "rgba(0,0,0,.22)", cx + 30, 450, 150, 10, 5); rr(x, "rgba(0,0,0,.22)", cx + 30, 470, 110, 10, 5);
     txt(x, t, cx + 18, 548, 22, "#ffffff", 700);
-    rr(x, "#2a2a2a", cx + 18, 566, 150, 12, 6);
+    txt(x, m, cx + 18, 576, 15, "#9a9a9a", 500);
   });
 }
 function drawApp(x: Ctx, w: number, h: number) {
@@ -69,7 +80,7 @@ function drawApp(x: Ctx, w: number, h: number) {
   rr(x, "#05060a", w / 2 - 50, 22, 100, 28, 14);
   rr(x, "#ffffff", w - 70, 32, 36, 14, 4);
   txt(x, "My projects", 30, 120, 34, "#ffffff", 800);
-  rr(x, "#2a2a2a", 30, 140, 200, 12, 6);
+  txt(x, "Your builds", 30, 152, 17, "#9a9a9a", 500);
   const rows: [string, string, string][] = [["Web app", "Active", "#4fd1a1"], ["Website", "Active", "#4fd1a1"], ["AI tool", "Pending", "#ff5a5f"]];
   rows.forEach(([t, st, c], i) => {
     const y = 186 + i * 118;
@@ -339,7 +350,8 @@ export function initStory(root: HTMLElement): () => void {
 
       const comp = eIO(seg(s, 0.95, 2.05));
       const top = 1.3 * sc + y, bot = -1.25 * sc + y;
-      const cutY = comp <= 0 || comp >= 1 ? -99 : lerp(top, bot, comp);
+      // Screens are off (dark glass) until the scan starts, then switch on line by line.
+    const cutY = comp <= 0 ? 99 : comp >= 1 ? -99 : lerp(top, bot, comp);
       solidPlane.constant = -cutY;
       const lo = comp > 0 && comp < 1 ? 1 : 0;
       (laser.material as THREE.MeshBasicMaterial).opacity = lo * 0.22;
@@ -360,11 +372,15 @@ export function initStory(root: HTMLElement): () => void {
         (layerEdges[i].material as THREE.LineBasicMaterial).opacity = ex * 0.8;
       });
       tilt.updateMatrixWorld(true);
+      let phoneRight = 0;
+      for (const [cx, cy] of [[PW / 2, PH / 2], [PW / 2, -PH / 2], [-PW / 2, PH / 2], [-PW / 2, -PH / 2]]) {
+        tmp.set(cx, cy, PT / 2); phone.localToWorld(tmp); phoneRight = Math.max(phoneRight, toPx(tmp)[0]);
+      }
       const lo2 = eOut(seg(s, 2.45, 2.75)) * (1 - eIn(seg(s, 3.25, 3.45)));
       lbls.forEach((l, i) => {
         tmp.set(SW / 2, 0, 0); layers[i].localToWorld(tmp);
         const [px, py] = toPx(tmp);
-        const lx = ph ? Wpx - 104 : Math.min(Wpx - 230, px + 70);
+        const lx = ph ? Wpx - 104 : Math.min(Wpx - 250, Math.max(px + 70, phoneRight + 36));
         l.style.setProperty("--o", lo2.toFixed(3)); l.style.setProperty("--x", lx + "px"); l.style.setProperty("--y", py - 22 + "px");
         lines[i].setAttribute("x1", String(px)); lines[i].setAttribute("y1", String(py));
         lines[i].setAttribute("x2", String(lx - 10)); lines[i].setAttribute("y2", String(py));

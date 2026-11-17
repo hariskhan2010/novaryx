@@ -63,7 +63,7 @@ export function StoryHero() {
               <p className="lede">We design, build and test every part, then hand it over ready to use.</p>
               <div className="btns">
                 <Link className="btn btn-pri" href="/projects">See the projects</Link>
-                <Link className="btn" href="/about">Meet the partners</Link>
+                <Link className="btn" href="/about#partners-h">Meet the partners</Link>
               </div>
             </div>
             <p className="mono hint" data-hint>Scroll to build ↓</p>
