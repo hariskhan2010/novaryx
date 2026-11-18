@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const FEATURES = [
   ["Block any app", "Switch off the internet for one program. The rest of the PC stays online."],
-  ["Wi-Fi only", "Block an app only on Wi-Fi, so it still works on a cable connection."],
+  ["Every network", "A blocked app stays offline on Wi-Fi, cable and every other connection. Your Wi-Fi and the other apps keep working."],
   ["Finds your apps", "Scans Start Menu shortcuts, installed programs, running processes, or any EXE you pick."],
   ["Checks its own work", "Every rule is read back after it is created, and checked again every 15 minutes."],
   ["Activity log", "Every block, change and restore is recorded."],

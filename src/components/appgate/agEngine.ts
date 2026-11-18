@@ -4,7 +4,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 /* AppGate case-study film: a laptop whose screen tells one idea per scene, cause then effect.
    0 problem: a game silently downloads an update        1 fix: cursor switches its internet off in AppGate
-   2 effect: the game shows "No internet", browser online 3 Wi-Fi only option
+   2 effect: the game shows "No internet", browser online 3 details: blocked on every network
    4 trust: every block is checked and recorded           5 undo: "Restore all" on the real AppGate Home screen
    Only one scene's content is on screen at a time. Motion reads sCur/time; shaders compile off-thread. */
 
@@ -50,9 +50,8 @@ function gameWindow(x: Ctx, w: number, h: number) {
   windowChrome(x, w, h, "Game launcher", false);
   rr(x, "#1c1c1c", 36, 80, 120, 120, 22); // app icon is painted here once it loads
   tx(x, "Game launcher update", 184, 120, 30, "#ffffff", 800);
-  tx(x, "Downloading 2.1 GB in the background", 184, 156, 19, "#9a9a9a", 500);
-  rr(x, "#2a2a2a", 36, 250, w - 72, 18, 9); // progress track (the fill is a separate mesh)
-  tx(x, "Using your internet connection", 36, 310, 18, "#9a9a9a", 500);
+  tx(x, "2.1 GB · downloads in the background", 184, 156, 19, "#9a9a9a", 500);
+  rr(x, "#2a2a2a", 36, 250, w - 72, 18, 9); // progress track (the fill and the percent line are live)
 }
 function noInternet(x: Ctx, w: number) {
   rr(x, "rgba(10,10,10,.95)", 0, 0, w, 300, 16);
@@ -62,7 +61,7 @@ function noInternet(x: Ctx, w: number) {
   x.beginPath(); x.moveTo(w / 2 - 70, 70); x.lineTo(w / 2 + 70, 175); x.stroke();
   x.textAlign = "center";
   tx(x, "No internet connection", w / 2, 230, 30, "#ffffff", 800);
-  tx(x, "AppGate has switched off this app's internet", w / 2, 264, 18, "#b5b5b5", 500);
+  tx(x, "Check your connection and try again.", w / 2, 264, 18, "#b5b5b5", 500);
   x.textAlign = "start";
 }
 function browserWindow(x: Ctx, w: number, h: number) {
@@ -74,47 +73,118 @@ function browserWindow(x: Ctx, w: number, h: number) {
   rr(x, "#1f9d6b", w - 130, h - 52, 110, 34, 17);
   tx(x, "● Online", w - 112, h - 29, 16, "#ffffff", 700);
 }
-type Row = { name: string; file: string; on: boolean; tag?: string };
-function appGateApps(rows: Row[], menu = false) {
+type Row = { name: string; sub: string; color: string; open?: boolean };
+const ROWS: Row[] = [
+  { name: "Browser", sub: "Web browser", color: "#2563eb", open: true },
+  { name: "Game launcher", sub: "Games", color: "#1c1c1c", open: true },
+  { name: "Chat", sub: "Messaging", color: "#7c3aed" },
+  { name: "Music", sub: "Media player", color: "#db2777" },
+];
+// Real AppGate light theme (Theme.cs)
+const AG = { bg: "#F4F5F7", surface: "#FFFFFF", border: "#E3E6EB", text: "#15171C", muted: "#596070", accent: "#1F5FBF", accentSoft: "#E6EEFB", hover: "#EEF0F4", okSoft: "#E2F4E8", okText: "#13703A", toast: "#1F232B", off: "#C9CED7" };
+/** Layout of the Apps page in its 900x420 texture */
+const L = { listX: 222, listW: 378, rowY: 146, rowH: 54, swX: 548, detX: 612 };
+type AppsState = { blocked: boolean; dialog?: boolean; toast?: boolean; details?: boolean };
+function wrapText(x: Ctx, s: string, a: number, b: number, maxW: number, lh: number) {
+  let line = "";
+  for (const word of s.split(" ")) {
+    const t = line ? line + " " + word : word;
+    if (x.measureText(t).width > maxW && line) { x.fillText(line, a, b); b += lh; line = word; } else line = t;
+  }
+  x.fillText(line, a, b);
+}
+function agSwitch(x: Ctx, cx: number, cy: number, on: boolean) {
+  if (on) rr(x, AG.accent, cx, cy - 10, 40, 20, 10);
+  else { rr(x, AG.surface, cx, cy - 10, 40, 20, 10); x.strokeStyle = AG.off; x.lineWidth = 1.5; x.beginPath(); x.roundRect(cx, cy - 10, 40, 20, 10); x.stroke(); }
+  x.beginPath(); x.arc(on ? cx + 30 : cx + 10, cy, 6.5, 0, 7); x.fillStyle = on ? "#fff" : "#8a909c"; x.fill();
+}
+function badge(x: Ctx, s: string, a: number, cy: number) {
+  x.font = `600 11px ${FONT}`; const w = x.measureText(s).width + 18;
+  rr(x, AG.accentSoft, a, cy - 10, w, 20, 10); tx(x, s, a + 9, cy + 4, 11, AG.accent, 600);
+  return w;
+}
+function card(x: Ctx, a: number, b: number, w: number, h: number) {
+  rr(x, AG.surface, a, b, w, h, 10);
+  x.strokeStyle = AG.border; x.lineWidth = 1; x.beginPath(); x.roundRect(a, b, w, h, 10); x.stroke();
+}
+function appGateApps(st: AppsState) {
   return (x: Ctx, w: number, h: number) => {
-    rr(x, "#ffffff", 0, 0, w, h, 16);
-    rr(x, "#f3f4f6", 0, 0, 200, h, 16); x.fillStyle = "#f3f4f6"; x.fillRect(180, 0, 20, h);
+    rr(x, AG.bg, 0, 0, w, h, 16);
+    rr(x, AG.surface, 0, 0, 196, h, 16); x.fillStyle = AG.surface; x.fillRect(176, 0, 20, h);
     rr(x, "#e5e7eb", 18, 20, 34, 34, 9); // the real AppGate logo is painted here once it loads
-    tx(x, "AppGate", 62, 36, 17, "#111", 800); tx(x, "Per-app internet control", 62, 52, 10, "#666", 500);
+    tx(x, "AppGate", 62, 36, 17, AG.text, 800); tx(x, "Per-app internet control", 62, 52, 10, AG.muted, 500);
     ["Home", "Apps", "Websites", "Activity", "Settings"].forEach((n, i) => {
-      if (n === "Apps") rr(x, "#dbe5f6", 12, 76 + i * 38, 176, 32, 8);
-      tx(x, n, 30, 97 + i * 38, 14, "#222", n === "Apps" ? 700 : 500);
+      if (n === "Apps") rr(x, AG.accentSoft, 12, 76 + i * 38, 172, 32, 8);
+      tx(x, n, 30, 97 + i * 38, 14, n === "Apps" ? AG.accent : AG.text, n === "Apps" ? 700 : 500);
     });
-    tx(x, "Apps", 224, 50, 26, "#111", 800);
-    tx(x, "Switch the internet off for any app.", 224, 74, 13, "#555", 500);
-    rows.forEach((r, i) => {
-      const y = 96 + i * 66;
-      rr(x, "#ffffff", 220, y, w - 240, 56, 10);
-      x.strokeStyle = "#e5e7eb"; x.lineWidth = 1; x.beginPath(); x.roundRect(220, y, w - 240, 56, 10); x.stroke();
-      rr(x, "#eef0f3", 232, y + 10, 36, 36, 8);
-      tx(x, r.name, 282, y + 26, 15, "#111", 700); tx(x, r.file, 282, y + 44, 11, "#777", 500);
-      const st = r.on ? "Internet on" : r.tag ?? "Blocked";
-      tx(x, st, w - 210, y + 33, 13, r.on ? "#1f7a4f" : r.tag ? "#b45309" : "#c81e1e", 700);
-      rr(x, r.on ? "#1d4ed8" : "#c4c9d2", w - 84, y + 17, 46, 24, 12);
-      x.beginPath(); x.arc(r.on ? w - 50 : w - 72, y + 29, 9, 0, 7); x.fillStyle = "#fff"; x.fill();
+    // header: title, summary, toolbar
+    tx(x, "Apps", L.listX, 46, 24, AG.text, 800);
+    tx(x, st.blocked ? "1 app is blocked from the internet." : "Turn a switch off to stop that app from using the internet.", L.listX, 68, 12, AG.muted, 500);
+    card(x, 692, 26, 100, 28); tx(x, "+  Add an app", 704, 45, 12, AG.text, 600);
+    card(x, 800, 26, 84, 28); tx(x, "\u27f3  Refresh", 812, 45, 12, AG.text, 600);
+    card(x, L.listX, 82, L.listW, 30); tx(x, "Search apps", L.listX + 14, 102, 12, AG.muted, 500);
+    // app list
+    card(x, L.listX, 118, L.listW, h - 132);
+    tx(x, "APP", L.listX + 14, 136, 10, AG.muted, 700); tx(x, "INTERNET", L.swX - 14, 136, 10, AG.muted, 700);
+    ROWS.forEach((r, i) => {
+      const y = L.rowY + i * L.rowH, cy = y + L.rowH / 2, isGame = i === 1, blocked = isGame && st.blocked;
+      if (isGame && st.details) rr(x, AG.hover, L.listX + 6, y + 3, L.listW - 12, L.rowH - 6, 8);
+      rr(x, r.color, L.listX + 14, cy - 14, 28, 28, 7); // the gamepad icon is painted on the Game launcher row
+      if (!isGame) tx(x, r.name[0], L.listX + 23, cy + 5, 14, "#fff", 800);
+      tx(x, r.name, L.listX + 54, cy - 3, 14, AG.text, 700);
+      let sx = L.listX + 54;
+      if (r.open) { rr(x, AG.okSoft, sx, cy + 4, 52, 15, 4); tx(x, "Open now", sx + 5, cy + 15, 10, AG.okText, 600); sx += 59; }
+      tx(x, r.sub, sx, cy + 15, 11, AG.muted, 500);
+      if (blocked) badge(x, "Blocked", L.swX - 70, cy);
+      else tx(x, "Allowed", L.swX - 56, cy + 4, 12, AG.muted, 500);
+      agSwitch(x, L.swX, cy, !blocked);
     });
-    if (menu) {
-      const y = 96 + 2 * 66 + 50;
-      rr(x, "rgba(0,0,0,.12)", w - 262, y + 4, 230, 112, 12);
-      rr(x, "#ffffff", w - 266, y, 230, 112, 12);
-      ["Block everywhere", "Block on Wi-Fi only", "Allow"].forEach((o, i) => {
-        if (i === 1) rr(x, "#dbe5f6", w - 260, y + 6 + i * 34, 218, 32, 8);
-        tx(x, o, w - 246, y + 28 + i * 34, 14, "#111", i === 1 ? 700 : 500);
+    // details panel
+    card(x, L.detX, 82, w - L.detX - 16, h - 96);
+    const dx = L.detX + 18;
+    if (!st.details) {
+      x.textAlign = "center";
+      const cx = L.detX + (w - L.detX - 16) / 2;
+      tx(x, "Select an app", cx, 236, 14, AG.text, 700);
+      tx(x, "Or use the switch on any row to", cx, 258, 11, AG.muted, 500);
+      tx(x, "turn its internet off.", cx, 273, 11, AG.muted, 500);
+      x.textAlign = "start";
+    } else {
+      rr(x, AG.bg, dx, 100, 40, 40, 10); // gamepad icon painted here too
+      tx(x, "Game launcher", dx + 52, 118, 16, AG.text, 800); tx(x, "Games", dx + 52, 135, 11, AG.muted, 500);
+      badge(x, "Blocked", dx, 162);
+      tx(x, "NETWORK ACCESS", dx, 196, 10, AG.muted, 700);
+      const opts: [string, string, boolean][] = [["Allow internet", "The app works online as normal.", false], ["Block internet", "Blocks this program on Wi-Fi, Ethernet and every other network.", true]];
+      opts.forEach(([t, d, sel], i) => {
+        const y = 206 + i * 62, cw = w - L.detX - 52;
+        rr(x, sel ? AG.accentSoft : AG.surface, dx, y, cw, 54, 8);
+        x.strokeStyle = sel ? AG.accent : AG.border; x.lineWidth = sel ? 1.5 : 1; x.beginPath(); x.roundRect(dx, y, cw, 54, 8); x.stroke();
+        x.beginPath(); x.arc(dx + 16, y + 18, 6, 0, 7); x.strokeStyle = sel ? AG.accent : AG.off; x.lineWidth = 1.5; x.stroke();
+        if (sel) { x.beginPath(); x.arc(dx + 16, y + 18, 3, 0, 7); x.fillStyle = AG.accent; x.fill(); }
+        tx(x, t, dx + 30, y + 22, 12, AG.text, 700);
+        x.font = `500 10px ${FONT}`; x.fillStyle = AG.muted; wrapText(x, d, dx + 30, y + 37, cw - 40, 12);
       });
+      rr(x, "#b7c6e3", dx, 340, 70, 28, 6); tx(x, "Apply", dx + 18, 358, 12, "#fff", 700);
+      card(x, dx + 80, 340, 128, 28); tx(x, "Open file location", dx + 92, 358, 11, AG.text, 600);
+    }
+    if (st.dialog) {
+      x.fillStyle = "rgba(15,17,21,.35)"; x.beginPath(); x.roundRect(0, 0, w, h, 16); x.fill();
+      const a = 240, b = 112, dw = 420, dh = 190;
+      rr(x, "rgba(0,0,0,.18)", a + 3, b + 6, dw, dh, 12); rr(x, AG.surface, a, b, dw, dh, 12);
+      tx(x, "Block internet for Game launcher?", a + 22, b + 36, 17, AG.text, 800);
+      x.font = "500 11px Consolas, monospace"; x.fillStyle = AG.muted; x.fillText("C:\\Games\\Launcher\\launcher.exe", a + 22, b + 62);
+      x.font = `500 12px ${FONT}`; x.fillStyle = AG.text;
+      wrapText(x, "Blocked on Wi-Fi, Ethernet and every other network. Other apps keep their internet access.", a + 22, b + 90, dw - 44, 17);
+      rr(x, AG.accent, a + dw - 196, b + dh - 48, 84, 30, 6); tx(x, "Block", a + dw - 172, b + dh - 28, 13, "#fff", 700);
+      card(x, a + dw - 102, b + dh - 48, 84, 30); tx(x, "Cancel", a + dw - 82, b + dh - 28, 13, AG.text, 600);
+    }
+    if (st.toast) {
+      const tw = 470, a = (w - tw) / 2 + 60;
+      rr(x, AG.toast, a, h - 52, tw, 36, 8);
+      tx(x, "Blocked Game launcher. Restart it so open connections close.", a + 16, h - 29, 12.5, "#fff", 600);
     }
   };
 }
-const ROWS: Row[] = [
-  { name: "Browser", file: "browser.exe", on: true },
-  { name: "Game launcher", file: "launcher.exe", on: true },
-  { name: "Chat", file: "chat.exe", on: true },
-  { name: "Music", file: "music.exe", on: true },
-];
 function activity(x: Ctx, w: number, h: number) {
   rr(x, "#ffffff", 0, 0, w, h, 16);
   tx(x, "Activity", 32, 56, 28, "#111", 800);
@@ -268,19 +338,43 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       // the canvas context is already scaled to the 720x360 design size
       (gameTex.image as HTMLCanvasElement).getContext("2d")!.drawImage(icon, 36, 80, 120, 120);
       gameTex.needsUpdate = true;
+      paintGameIcon();
     };
     icon.src = gameIconUrl;
     const bar = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: 0xe50914, toneMapped: false, transparent: true, depthWrite: false }));
     bar.renderOrder = 6; lid.add(bar);
+    // live line under the bar: percent while downloading, "Update downloaded" when done
+    const statusTex = T(() => {}, 720, 50);
+    const statusCtx = (statusTex.image as HTMLCanvasElement).getContext("2d")!;
+    const status = plane(statusTex, gw, gw / 720 * 50, 0.005);
+    let lastStatus = "";
+    const drawStatus = (pct: number, mode: "run" | "done" | "paused") => {
+      const key = mode + pct;
+      if (key === lastStatus) return;
+      lastStatus = key;
+      statusCtx.clearRect(0, 0, 720, 50);
+      if (mode === "done") {
+        tx(statusCtx, "✓  Update downloaded", 36, 32, 21, "#46d369", 800);
+        tx(statusCtx, "2.1 GB of 2.1 GB", 520, 32, 17, "#9a9a9a", 500);
+      } else {
+        tx(statusCtx, `${pct}%`, 36, 33, 23, mode === "run" ? "#ffffff" : "#8a8a8a", 800);
+        tx(statusCtx, mode === "run" ? `Downloading · ${(2.1 * pct / 100).toFixed(1)} GB of 2.1 GB` : "Paused · no internet connection", 112, 32, 17, "#9a9a9a", 500);
+      }
+      statusTex.needsUpdate = true;
+    };
     const noNet = plane(T((x, w) => noInternet(x, w), 560, 300), SW * 0.44, SW * 0.44 * 300 / 560, 0.008);
     const browser = plane(T(browserWindow, 520, 400), SW * 0.36, SW * 0.36 * 400 / 520, 0.006);
-    const off = (i: number, extra?: Partial<Row>) => ROWS.map((row, j) => (j === i ? { ...row, on: false, ...extra } : row));
-    const agTex = [
-      T(appGateApps(ROWS), 900, 420),
-      T(appGateApps(off(1)), 900, 420),
-      T(appGateApps(off(1), true), 900, 420),
-      T(appGateApps(off(1).map((row, j) => (j === 2 ? { ...row, on: false, tag: "Wi-Fi blocked" } : row))), 900, 420),
-    ];
+    // 0 normal · 1 confirm dialog · 2 blocked + toast · 3 blocked · 4 blocked, details panel open
+    const agStates: AppsState[] = [{ blocked: false }, { blocked: false, dialog: true }, { blocked: true, toast: true }, { blocked: true }, { blocked: true, details: true }];
+    const agTex = agStates.map((st) => T(appGateApps(st), 900, 420));
+    const paintGameIcon = () => agTex.forEach((t, i) => {
+      const ctx = (t.image as HTMLCanvasElement).getContext("2d")!;
+      const cy = L.rowY + L.rowH * 1.5;
+      ctx.drawImage(icon, L.listX + 14, cy - 14, 28, 28);
+      if (agStates[i].details) ctx.drawImage(icon, L.detX + 22, 104, 32, 32);
+      if (agStates[i].dialog) { ctx.fillStyle = "rgba(15,17,21,.35)"; ctx.fillRect(L.listX + 14, cy - 14, 28, 28); }
+      t.needsUpdate = true;
+    });
     const logo = new Image();
     logo.onload = () => agTex.forEach((t) => {
       const ctx = (t.image as HTMLCanvasElement).getContext("2d")!; // already scaled to the 900x420 design size
@@ -308,9 +402,10 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
     const click = (t: number) => (t > 0 && t < 1 ? Math.sin(t * Math.PI) : 0);
     // pixel on a texture (centred at screen origin) -> screen u,v
     const at = (px: number, py: number, tw: number, th: number, w: number, h: number) => [(px / tw - 0.5) * w / SW, (0.5 - py / th) * h / SH] as const;
-    const toggleGame = at(900 - 61, 96 + 66 + 29, 900, 420, agW, agH);
-    const toggleChat = at(900 - 61, 96 + 2 * 66 + 29, 900, 420, agW, agH);
-    const menuWifi = at(900 - 150, 96 + 2 * 66 + 50 + 57, 900, 420, agW, agH);
+    const gameCy = L.rowY + L.rowH * 1.5;
+    const toggleGame = at(L.swX + 20, gameCy, 900, 420, agW, agH);
+    const blockBtn = at(240 + 420 - 154, 112 + 190 - 33, 900, 420, agW, agH);
+    const gameRow = at(L.listX + 110, gameCy, 900, 420, agW, agH);
     const restoreBtn = at(1062, 515, 1226, 636, hw, hh);
 
     let Wpx = 1, Hpx = 1;
@@ -332,7 +427,10 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       // Scene 0 (problem) and 2 (result): the game window with its progress bar
       const o0 = win(s, -1, 1), o2 = win(s, 2, 3), oG = Math.max(o0, o2);
       fade(game, oG); put(game, o2 > 0.01 ? -0.16 : 0, 0.04);
-      const prog = o2 > 0.01 ? 0.58 : 0.12 + ((time * 0.08) % 0.86);
+      const prog = o2 > 0.01 ? 0.58 : RM ? 1 : clamp(0.04 + time / 9);
+      const pct = Math.round(prog * 100);
+      drawStatus(pct, o2 > 0.01 ? "paused" : pct >= 100 ? "done" : "run");
+      fade(status, oG); status.position.set(game.position.x, game.position.y + gh * (0.5 - 305 / 360), Z + 0.005);
       fade(bar, oG);
       const bw = gw * (648 / 720) * prog;
       bar.scale.set(Math.max(bw, 0.001), gh * (18 / 360), 1);
@@ -344,8 +442,8 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       fade(ag, Math.max(o1, o3)); put(ag, 0, 0);
       const m = ag.material as THREE.MeshBasicMaterial;
       m.map = o3 > 0.01
-        ? (s > 3.72 ? agTex[3] : s > 3.42 ? agTex[2] : agTex[1])
-        : (s > 1.62 ? agTex[1] : agTex[0]);
+        ? (s > 3.45 ? agTex[4] : agTex[3])
+        : (s > 1.78 ? agTex[2] : s > 1.45 ? agTex[1] : agTex[0]);
 
       // Scene 2: "No internet" on the game, browser still online
       fade(noNet, o2); put(noNet, -0.16, 0.02);
@@ -361,11 +459,13 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       // Cursor: one path per scene that has a click
       let cu = 0.2, cv = -0.2, co = 0, ck = 0;
       if (o1 > 0.01) {
-        const t = eIO(seg(s, 1.05, 1.45)); cu = lerp(0.1, toggleGame[0], t); cv = lerp(-0.25, toggleGame[1], t); co = o1; ck = click(seg(s, 1.5, 1.7));
+        // click the Game launcher switch, then "Block" in the confirmation
+        const t1 = eIO(seg(s, 1.05, 1.32)), t2 = eIO(seg(s, 1.5, 1.66));
+        cu = lerp(lerp(0.1, toggleGame[0], t1), blockBtn[0], t2); cv = lerp(lerp(-0.3, toggleGame[1], t1), blockBtn[1], t2); co = o1;
+        ck = Math.max(click(seg(s, 1.34, 1.48)), click(seg(s, 1.68, 1.8)));
       } else if (o3 > 0.01) {
-        const t1 = eIO(seg(s, 3.05, 3.28)), t2 = eIO(seg(s, 3.45, 3.6));
-        cu = lerp(lerp(0.1, toggleChat[0], t1), menuWifi[0], t2); cv = lerp(lerp(-0.25, toggleChat[1], t1), menuWifi[1], t2); co = o3;
-        ck = Math.max(click(seg(s, 3.3, 3.45)), click(seg(s, 3.6, 3.75)));
+        // open the Game launcher row: its details show "Block internet" covers every network
+        const t = eIO(seg(s, 3.05, 3.3)); cu = lerp(0.1, gameRow[0], t); cv = lerp(-0.3, gameRow[1], t); co = o3; ck = click(seg(s, 3.33, 3.47));
       } else if (o5 > 0.01) {
         const t = eIO(seg(s, 5.05, 5.38)); cu = lerp(0, restoreBtn[0], t); cv = lerp(-0.1, restoreBtn[1], t); co = o5; ck = click(seg(s, 5.4, 5.55));
       }
