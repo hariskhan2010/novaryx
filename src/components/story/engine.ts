@@ -29,6 +29,29 @@ function canvasTex(draw: (x: Ctx, w: number, h: number) => void, w = 1024, h = 6
   t.anisotropy = 16;
   return t;
 }
+/** Like canvasTex, but paints the real artwork later, when the browser is idle. The texture object
+ *  (and so the shader) stays the same; only its image is swapped. */
+const idleJobs: (() => void)[] = [];
+function lazyTex(draw: (x: Ctx, w: number, h: number) => void, w = 1024, h = 640, k = 2) {
+  const t = canvasTex((x) => { x.fillStyle = "#0b0b0b"; x.fillRect(0, 0, 4, 4); }, 4, 4, 1);
+  idleJobs.push(() => {
+    const c = document.createElement("canvas");
+    c.width = w * k; c.height = h * k;
+    const x = c.getContext("2d")!;
+    x.scale(k, k);
+    draw(x, w, h);
+    t.image = c;
+    t.needsUpdate = true;
+  });
+  return t;
+}
+function runIdleJobs() {
+  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback
+    ?? ((cb: () => void) => window.setTimeout(cb, 200));
+  const next = () => { const job = idleJobs.shift(); if (!job) return; job(); ric(next, { timeout: 1500 }); };
+  ric(next, { timeout: 1500 });
+}
+
 function rr(x: Ctx, c: string | CanvasGradient, a: number, b: number, w: number, h: number, r: number) {
   x.beginPath(); x.roundRect(a, b, w, h, r); x.fillStyle = c; x.fill();
 }
@@ -221,12 +244,14 @@ export function initStory(root: HTMLElement): () => void {
     r.setPixelRatio(Math.min(Math.max(devicePixelRatio, 1.5), maxDpr));
     r.toneMapping = THREE.ACESFilmicToneMapping;
     r.outputColorSpace = THREE.SRGBColorSpace;
-    r.localClippingEnabled = true;
+    // The sync shader-error check blocks the main thread while shaders compile (~2 s on slow GPUs).
+    r.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
     camera.position.set(0, 0, 12);
+    // Environment for the metal reflections is built after its shaders compile off-thread (see below).
     const pm = new THREE.PMREMGenerator(r);
-    scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+    const room = new RoomEnvironment();
     scene.environmentIntensity = 0.9;
     const key = new THREE.DirectionalLight(0xffffff, 1.8);
     key.position.set(4, 6, 5);
@@ -237,8 +262,7 @@ export function initStory(root: HTMLElement): () => void {
 
     const accent = new THREE.Color(), hot = new THREE.Color();
     // Laser "build": while it sweeps down, screen content shows only above the cut.
-    const solidPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 99);
-    const S = [solidPlane];
+    // Done by cropping the screen mesh + its texture (not clipping planes, which add a shader variant).
 
     const tilt = new THREE.Group(), group = new THREE.Group();
     tilt.add(group); scene.add(tilt);
@@ -246,7 +270,8 @@ export function initStory(root: HTMLElement): () => void {
     const siteTex = canvasTex(drawSite);
     const appTex = canvasTex(drawApp, 400, 820);
     const keyTex = canvasTex(drawKeys, 1024, 700);
-    const layerTex = [canvasTex(drawDesign), siteTex, canvasTex(drawBackend), canvasTex(drawAI)];
+    // Layer art is only seen after scrolling, so it is painted when the browser is idle.
+    const layerTex = [lazyTex(drawDesign), siteTex, lazyTex(drawBackend), lazyTex(drawAI)];
 
     const alu = new THREE.MeshPhysicalMaterial({ color: 0x4a5163, metalness: 0.9, roughness: 0.32, clearcoat: 0.4, clearcoatRoughness: 0.3 });
     const bezel = new THREE.MeshPhysicalMaterial({ color: 0x07080c, metalness: 0.2, roughness: 0.12, clearcoat: 1 });
@@ -269,7 +294,8 @@ export function initStory(root: HTMLElement): () => void {
     const glass = new THREE.Mesh(new THREE.PlaneGeometry(LW - 0.04, LH - 0.04), bezel);
     glass.position.set(0, LH / 2, LT / 2 + 0.001); lid.add(glass);
     const SW = LW - 0.2, SH = SW / 1.6;
-    const screenMat = new THREE.MeshBasicMaterial({ map: siteTex, toneMapped: false, clippingPlanes: S });
+    const screenTex = siteTex.clone(); // own UV crop; shares the image with the Frontend layer
+    const screenMat = new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false });
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(SW, SH), screenMat);
     const SY = LH / 2 + 0.03;
     screen.position.set(0, SY, LT / 2 + 0.003); lid.add(screen);
@@ -293,7 +319,8 @@ export function initStory(root: HTMLElement): () => void {
     phone.add(phoneBody);
     const phoneGlass = new THREE.Mesh(new THREE.PlaneGeometry(PW - 0.03, PH - 0.03), bezel);
     phoneGlass.position.z = PT / 2 + 0.001; phone.add(phoneGlass);
-    const phoneScreen = new THREE.Mesh(new THREE.PlaneGeometry(PW - 0.07, (PW - 0.07) * 2.05), new THREE.MeshBasicMaterial({ map: appTex, toneMapped: false, transparent: true, clippingPlanes: S }));
+    const PSH = (PW - 0.07) * 2.05;
+    const phoneScreen = new THREE.Mesh(new THREE.PlaneGeometry(PW - 0.07, PSH), new THREE.MeshBasicMaterial({ map: appTex, toneMapped: false, transparent: true }));
     phoneScreen.position.z = PT / 2 + 0.003; phone.add(phoneScreen);
     group.position.x = -0.35;
 
@@ -349,6 +376,18 @@ export function initStory(root: HTMLElement): () => void {
       return K[K.length - 1].slice(1);
     };
     const v = new THREE.Vector3();
+    const edge = new THREE.Vector3();
+    /** Shows only the part of a screen above world height cutY, by cropping mesh and UVs together. */
+    const reveal = (m: THREE.Mesh, tex: THREE.Texture, baseY: number, h: number, cutY: number) => {
+      const top = m.parent!.localToWorld(edge.set(0, baseY + h / 2, m.position.z)).y;
+      const bot = m.parent!.localToWorld(edge.set(0, baseY - h / 2, m.position.z)).y;
+      const k = clamp((top - cutY) / Math.max(1e-6, top - bot));
+      m.visible = k > 0.001;
+      m.scale.y = Math.max(k, 0.001);
+      m.position.y = baseY + (h / 2) * (1 - k);
+      tex.repeat.set(1, k);
+      tex.offset.set(0, 1 - k);
+    };
     const toPx = (p: THREE.Vector3) => { v.copy(p).project(camera); return [((v.x + 1) / 2) * Wpx, ((1 - v.y) / 2) * Hpx]; };
     const tmp = new THREE.Vector3();
 
@@ -365,7 +404,9 @@ export function initStory(root: HTMLElement): () => void {
       const top = 1.3 * sc + y, bot = -1.25 * sc + y;
       // Screens are off (dark glass) until the scan starts, then switch on line by line.
     const cutY = comp <= 0 ? 99 : comp >= 1 ? -99 : lerp(top, bot, comp);
-      solidPlane.constant = -cutY;
+      tilt.updateMatrixWorld(true);
+      reveal(screen, screenTex, SY, SH, cutY);
+      reveal(phoneScreen, appTex, 0, PSH, cutY);
       const lo = comp > 0 && comp < 1 ? 1 : 0;
       (laser.material as THREE.MeshBasicMaterial).opacity = lo * 0.22;
       (laserLine.material as THREE.MeshBasicMaterial).opacity = lo;
@@ -434,8 +475,21 @@ export function initStory(root: HTMLElement): () => void {
         l.classList.toggle("on", i === act);
       });
       pts.rotation.y = time * 0.02; pts.position.y = -s * 0.25;
-      r.render(scene, camera);
+      if (glReady) r.render(scene, camera);
     };
+
+    // Compile every shader (including the hidden layers and ring) off the main thread, then fade the 3D in.
+    let glReady = false;
+    canvas.style.opacity = "0";
+    canvas.style.transition = "opacity .6s ease";
+    const envCam = new THREE.CubeCamera(0.1, 100, new THREE.WebGLCubeRenderTarget(16));
+    r.compileAsync(room, envCam.children[0] as THREE.Camera).catch(() => {})
+      .then(() => { scene.environment = pm.fromScene(room, 0.04).texture; envCam.renderTarget.dispose(); })
+      .then(() => r.compileAsync(scene, camera)).catch(() => {}).finally(() => {
+      glReady = true;
+      canvas.style.opacity = "1";
+      runIdleJobs();
+    });
 
     let slow = 0;
     govern = (dt) => {
@@ -450,7 +504,7 @@ export function initStory(root: HTMLElement): () => void {
         const mat = m.material as THREE.Material | THREE.Material[] | undefined;
         (Array.isArray(mat) ? mat : mat ? [mat] : []).forEach((x) => x.dispose());
       });
-      [siteTex, appTex, keyTex, laserTex, ...layerTex].forEach((t) => t.dispose());
+      [siteTex, screenTex, appTex, keyTex, laserTex, ...layerTex].forEach((t) => t.dispose());
       pm.dispose(); r.dispose();
     });
   }
