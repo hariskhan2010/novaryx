@@ -33,7 +33,7 @@ export function StoryHero() {
               <p className="lede">See the apps, websites and AI tools we have built, or tell us what you need and we build it for you.</p>
               <div className="btns">
                 <Link className="btn btn-pri" href="/projects">See the projects</Link>
-                <Link className="btn" href="/contact">Start a project</Link>
+                <Link className="btn" href="/contact">Contact us</Link>
               </div>
             </div>
             <div className="scene" data-r="1.0,1.3,2.0,2.2">

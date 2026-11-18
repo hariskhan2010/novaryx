@@ -84,7 +84,7 @@ export function Nav() {
           {NAV.map((n) => <Link key={n.href} href={n.href} aria-current={cur(n.href)}>{n.label}</Link>)}
         </nav>
         <ThemeSwitch />
-        <Link className="btn btn-pri cta-nav" href="/contact" style={{ padding: "11px 18px" }}>Start a project</Link>
+        <Link className="btn btn-pri cta-nav" href="/contact" style={{ padding: "11px 18px" }}>Contact us</Link>
         <button ref={btn} type="button" className="menu-btn" aria-expanded={open} aria-controls="drawer" aria-label="Menu" onClick={() => (open ? close(true) : setOpen(true))}>
           <span aria-hidden="true">+</span>
         </button>

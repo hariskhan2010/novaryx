@@ -62,7 +62,7 @@ export default function Home() {
         <div className="band">
           <p className="mono">Custom projects</p>
           <h2 id="band-h">Don&apos;t see what you need? We&apos;ll build it.</h2>
-          <Link className="btn" href="/contact">Start a project</Link>
+          <Link className="btn" href="/contact">Contact us</Link>
         </div>
       </section>
     </>

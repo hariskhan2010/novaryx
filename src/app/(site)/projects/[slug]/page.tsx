@@ -78,7 +78,7 @@ async function Detail({ params }: { params: PageProps<"/projects/[slug]">["param
       <div className="band" style={{ marginTop: 80 }}>
         <p className="mono">Like this project?</p>
         <h2>Tell us what you want built.</h2>
-        <Link className="btn" href="/contact">Start a project</Link>
+        <Link className="btn" href="/contact">Contact us</Link>
       </div>
     </article>
   );

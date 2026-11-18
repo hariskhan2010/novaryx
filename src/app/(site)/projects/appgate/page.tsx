@@ -106,7 +106,7 @@ export default function AppGatePage() {
         <div className="band">
           <p className="mono">Need something like this?</p>
           <h2>We build advanced software in days, not months.</h2>
-          <Link className="btn" href="/contact">Start a project</Link>
+          <Link className="btn" href="/contact">Contact us</Link>
         </div>
       </section>
     </>

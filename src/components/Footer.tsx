@@ -10,7 +10,7 @@ export function Footer() {
             <svg width="26" height="26" style={{ color: "var(--fg)" }} aria-hidden="true"><use href="#mark" /></svg>{site.name}
           </Link>
           <p className="muted">A three-partner software studio from {site.location}. We build websites, apps and AI tools, then help them grow.</p>
-          <Link className="btn btn-pri" href="/contact">Start a project</Link>
+          <Link className="btn btn-pri" href="/contact">Contact us</Link>
         </div>
         <nav aria-label="Footer">
           <p className="mono">Pages</p>
