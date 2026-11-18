@@ -29,7 +29,6 @@ export function Footer() {
       </div>
       <div className="wrap foot-bar">
         <span>&copy; {site.year} {site.name}. All rights reserved.</span>
-        <span>3D visuals are renders</span>
       </div>
     </footer>
   );
