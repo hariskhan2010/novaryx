@@ -79,7 +79,7 @@ function appGateApps(rows: Row[], menu = false) {
   return (x: Ctx, w: number, h: number) => {
     rr(x, "#ffffff", 0, 0, w, h, 16);
     rr(x, "#f3f4f6", 0, 0, 200, h, 16); x.fillStyle = "#f3f4f6"; x.fillRect(180, 0, 20, h);
-    rr(x, "#1d4ed8", 18, 20, 34, 34, 9); tx(x, "⛨", 26, 45, 20, "#ffffff", 800);
+    rr(x, "#e5e7eb", 18, 20, 34, 34, 9); // the real AppGate logo is painted here once it loads
     tx(x, "AppGate", 62, 36, 17, "#111", 800); tx(x, "Per-app internet control", 62, 52, 10, "#666", 500);
     ["Home", "Apps", "Websites", "Activity", "Settings"].forEach((n, i) => {
       if (n === "Apps") rr(x, "#dbe5f6", 12, 76 + i * 38, 176, 32, 8);
@@ -173,7 +173,7 @@ function toastArt(x: Ctx, w: number, h: number) {
   tx(x, "✓  Restored all AppGate blocks", 22, h / 2 + 7, 20, "#ffffff", 700);
 }
 
-export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIconUrl: string): () => void {
+export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIconUrl: string, logoUrl: string): () => void {
   const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const scroller = root.querySelector<HTMLElement>(".ag-scroller")!;
   const stage = root.querySelector<HTMLElement>(".ag-stage")!;
@@ -281,10 +281,20 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       T(appGateApps(off(1), true), 900, 420),
       T(appGateApps(off(1).map((row, j) => (j === 2 ? { ...row, on: false, tag: "Wi-Fi blocked" } : row))), 900, 420),
     ];
+    const logo = new Image();
+    logo.onload = () => agTex.forEach((t) => {
+      const ctx = (t.image as HTMLCanvasElement).getContext("2d")!; // already scaled to the 900x420 design size
+      ctx.save(); ctx.beginPath(); ctx.roundRect(18, 20, 34, 34, 9); ctx.clip(); ctx.drawImage(logo, 18, 20, 34, 34); ctx.restore();
+      t.needsUpdate = true;
+    });
+    logo.src = logoUrl;
     const agW = SW * 0.9, agH = agW * 420 / 900;
     const ag = plane(agTex[0], agW, agH, 0.004);
     const act = plane(T(activity, 760, 430), SW * 0.8, SW * 0.8 * 430 / 760, 0.004);
-    const homeTex = new THREE.TextureLoader().load(homeShotUrl); homeTex.colorSpace = THREE.SRGBColorSpace; homeTex.anisotropy = 8; textures.push(homeTex);
+    // Real screenshot: no mipmaps, so the screen stays sharp instead of falling back to a blurrier mip level.
+    const homeTex = new THREE.TextureLoader().load(homeShotUrl);
+    homeTex.colorSpace = THREE.SRGBColorSpace; homeTex.generateMipmaps = false; homeTex.minFilter = THREE.LinearFilter; homeTex.anisotropy = 16;
+    textures.push(homeTex);
     const hw = SW * 0.94, hh = hw * 636 / 1226;
     const home = plane(homeTex, hw, hh, 0.004);
     const toast = plane(T(toastArt, 420, 64), SW * 0.38, SW * 0.38 * 64 / 420, 0.01);

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { AppGateFilm } from "@/components/appgate/AppGateFilm";
 import shot from "@/assets/projects/appgate-home.webp";
 import gameIcon from "@/assets/projects/game-launcher-icon.webp";
+import appLogo from "@/assets/projects/appgate-logo.webp";
+import homeSharp from "@/assets/projects/appgate-home-sharp.png";
 
 export const metadata: Metadata = {
   title: "AppGate · per-app internet control for Windows",
@@ -44,7 +46,7 @@ const TECH = ["C#", ".NET 8", "WPF", "Windows Service", "Windows Defender Firewa
 export default function AppGatePage() {
   return (
     <>
-      <AppGateFilm homeShot={shot.src} gameIcon={gameIcon.src} />
+      <AppGateFilm homeShot={homeSharp.src} gameIcon={gameIcon.src} logo={appLogo.src} />
 
       <section className="wrap section ag-detail" aria-labelledby="ag-what">
         <Link href="/projects" className="mono muted proj-back">← All projects</Link>
