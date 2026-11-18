@@ -3,9 +3,9 @@ import { useEffect, useRef } from "react";
 import { initAppGateFilm } from "./agEngine";
 
 const SCENES: { r: string; eyebrow: string; h: string; p: string; h1?: boolean }[] = [
-  { r: "-1,0,.8,.98", eyebrow: "Case study · Windows app · Built in one week", h: "AppGate", h1: true, p: "Some apps use your internet without asking, like a game quietly downloading a huge update." },
+  { r: "-1,0,.8,.98", eyebrow: "Case study · Windows app · Built in one week", h: "AppGate", h1: true, p: "Some apps use your internet without asking, like a Game launcher quietly downloading a huge update." },
   { r: "1,1.15,1.82,1.98", eyebrow: "The fix", h: "Pick the app. Switch its internet off.", p: "In AppGate, one switch next to the app turns its internet off." },
-  { r: "2,2.15,2.82,2.98", eyebrow: "The result", h: "Only that app goes offline.", p: "The game shows “No internet”. The browser and everything else keep working." },
+  { r: "2,2.15,2.82,2.98", eyebrow: "The result", h: "Only that app goes offline.", p: "The Game launcher shows “No internet”. The browser and everything else keep working." },
   { r: "3,3.15,3.82,3.98", eyebrow: "More control", h: "Or block it only on Wi-Fi.", p: "Handy for apps that shouldn’t use a metered connection. On a cable they work as normal." },
   { r: "4,4.15,4.82,4.98", eyebrow: "Built to be trusted", h: "Every block is checked and recorded.", p: "AppGate checks the request, creates a Windows Firewall rule, reads it back, saves it and logs it." },
   { r: "5,5.15,6.5,7", eyebrow: "Always reversible", h: "One click undoes everything.", p: "“Restore all” removes only AppGate’s own rules, shown here on the real AppGate Home screen." },
