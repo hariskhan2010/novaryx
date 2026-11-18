@@ -185,16 +185,52 @@ function appGateApps(st: AppsState) {
     }
   };
 }
+/** Activity page, redrawn from the real ActivityView: a log table, newest first. */
 function activity(x: Ctx, w: number, h: number) {
-  rr(x, "#ffffff", 0, 0, w, h, 16);
-  tx(x, "Activity", 32, 56, 28, "#111", 800);
-  tx(x, "What AppGate did when you blocked Game launcher", 32, 84, 14, "#555", 500);
-  ["Request checked: allowed caller, safe file path", "Firewall rule created for launcher.exe", "Rule read back from Windows Firewall", "Saved in the database", "Written to the activity log"].forEach((t, i) => {
-    const y = 112 + i * 62;
-    rr(x, "#f6f7f9", 28, y, w - 56, 50, 10);
-    x.beginPath(); x.arc(56, y + 25, 13, 0, 7); x.fillStyle = "#1f9d6b"; x.fill();
-    tx(x, "✓", 49, y + 31, 16, "#fff", 800);
-    tx(x, t, 84, y + 31, 16, "#111", 600);
+  rr(x, AG.bg, 0, 0, w, h, 16);
+  rr(x, AG.surface, 0, 0, 196, h, 16); x.fillStyle = AG.surface; x.fillRect(176, 0, 20, h);
+  rr(x, "#e5e7eb", 18, 20, 34, 34, 9); // the real AppGate logo is painted here once it loads
+  tx(x, "AppGate", 62, 36, 17, AG.text, 800); tx(x, "Per-app internet control", 62, 52, 10, AG.muted, 500);
+  ["Home", "Apps", "Websites", "Activity", "Settings"].forEach((n, i) => {
+    if (n === "Activity") rr(x, AG.accentSoft, 12, 76 + i * 38, 172, 32, 8);
+    tx(x, n, 30, 97 + i * 38, 14, n === "Activity" ? AG.accent : AG.text, n === "Activity" ? 700 : 500);
+  });
+  const L0 = 222;
+  tx(x, "Activity", L0, 46, 24, AG.text, 800);
+  tx(x, "Every change AppGate made to the firewall, who asked for it, and whether it worked.", L0, 68, 12, AG.muted, 500);
+  card(x, 692, 26, 84, 28); tx(x, "\u27f3  Refresh", 704, 45, 12, AG.text, 600);
+  card(x, 784, 26, 100, 28); tx(x, "Export CSV\u2026", 798, 45, 12, AG.text, 600);
+  // result filter chips
+  let cx = L0;
+  ["All results", "Success", "Partial", "Failed", "Denied"].forEach((c, i) => {
+    x.font = `600 11px ${FONT}`; const cw = x.measureText(c).width + 22;
+    if (i === 0) rr(x, AG.accentSoft, cx, 82, cw, 24, 12); else card(x, cx, 82, cw, 24);
+    tx(x, c, cx + 11, 98, 11, i === 0 ? AG.accent : AG.text, 600); cx += cw + 6;
+  });
+  // table
+  card(x, L0, 116, w - L0 - 16, h - 130);
+  const cols: [string, number][] = [["Time", L0 + 14], ["Action", L0 + 132], ["App", L0 + 222], ["Result", L0 + 324], ["Who", L0 + 402], ["Details", L0 + 512]];
+  cols.forEach(([c, a]) => tx(x, c, a, 136, 11, AG.muted, 700));
+  x.fillStyle = AG.border; x.fillRect(L0 + 1, 146, w - L0 - 18, 1);
+  const rows: [string, string, string, boolean, string, string][] = [
+    ["11/18/2026 10:42 AM", "Blocked", "Game launcher", true, "DESKTOP\\User", "Block all: C:\\Games\\Launcher\\launcher.exe"],
+    ["11/18/2026 10:30 AM", "Rule check", "", false, "AppGate service", "0 issue(s) found, 0 repaired"],
+    ["11/18/2026 10:15 AM", "Removed block", "Music", false, "DESKTOP\\User", ""],
+    ["11/18/2026 10:12 AM", "Blocked", "Music", true, "DESKTOP\\User", "Block all: C:\\Program Files\\Music\\music.exe"],
+  ];
+  rows.forEach(([when, act, app, block, who, det], i) => {
+    const y = 147 + i * 46, cy = y + 27;
+    if (i === 0) rr(x, AG.hover, L0 + 4, y + 4, w - L0 - 24, 40, 6);
+    tx(x, when, cols[0][1], cy, 11, AG.text, 500);
+    tx(x, act, cols[1][1], cy, 11, AG.text, 600);
+    tx(x, app, cols[2][1], cy, 11, AG.text, 500);
+    x.font = `600 10px ${FONT}`; const bw = x.measureText("Success").width + 16;
+    rr(x, block ? AG.accentSoft : "#EEF0F3", cols[3][1], cy - 13, bw, 18, 9); tx(x, "Success", cols[3][1] + 8, cy, 10, block ? AG.accent : AG.muted, 600);
+    tx(x, who, cols[4][1], cy, 11, AG.text, 500);
+    x.font = `500 11px ${FONT}`; let d = det;
+    while (d && x.measureText(d).width > w - cols[5][1] - 26) d = d.slice(0, -2);
+    tx(x, d !== det ? d + "\u2026" : d, cols[5][1], cy, 11, AG.muted, 500);
+    x.fillStyle = AG.border; x.fillRect(L0 + 1, y + 46, w - L0 - 18, 1);
   });
 }
 function keyboardArt(x: Ctx, w: number, h: number) {
@@ -376,7 +412,7 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
       t.needsUpdate = true;
     });
     const logo = new Image();
-    logo.onload = () => agTex.forEach((t) => {
+    logo.onload = () => [...agTex, actTex].forEach((t) => {
       const ctx = (t.image as HTMLCanvasElement).getContext("2d")!; // already scaled to the 900x420 design size
       ctx.save(); ctx.beginPath(); ctx.roundRect(18, 20, 34, 34, 9); ctx.clip(); ctx.drawImage(logo, 18, 20, 34, 34); ctx.restore();
       t.needsUpdate = true;
@@ -384,7 +420,8 @@ export function initAppGateFilm(root: HTMLElement, homeShotUrl: string, gameIcon
     logo.src = logoUrl;
     const agW = SW * 0.9, agH = agW * 420 / 900;
     const ag = plane(agTex[0], agW, agH, 0.004);
-    const act = plane(T(activity, 760, 430), SW * 0.8, SW * 0.8 * 430 / 760, 0.004);
+    const actTex = T(activity, 900, 420);
+    const act = plane(actTex, agW, agH, 0.004);
     // Real screenshot: no mipmaps, so the screen stays sharp instead of falling back to a blurrier mip level.
     const homeTex = new THREE.TextureLoader().load(homeShotUrl);
     homeTex.colorSpace = THREE.SRGBColorSpace; homeTex.generateMipmaps = false; homeTex.minFilter = THREE.LinearFilter; homeTex.anisotropy = 16;
