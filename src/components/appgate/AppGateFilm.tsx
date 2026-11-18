@@ -33,7 +33,7 @@ export function AppGateFilm({ homeShot, gameIcon }: { homeShot: string; gameIcon
               </div>
             ))}
           </div>
-          <p className="mono ag-note">3D render · scroll to play</p>
+          <p className="mono ag-note">Scroll to play</p>
         </div>
       </div>
     </div>

@@ -69,7 +69,6 @@ export function StoryHero() {
             <p className="mono hint" data-hint>Scroll to build ↓</p>
           </div>
           <div className="story-fx" />
-          <p className="mono render-note">3D render</p>
         </div>
       </div>
     </div>
